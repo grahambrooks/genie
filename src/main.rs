@@ -36,10 +36,15 @@ async fn main() {
 
     let args = Args::parse();
 
+    if args.prompt.is_empty() {
+        println!("Please provide a prompt. dev-shell --help for more information.");
+        return;
+    }
+
     if args.summarize {
         println!("Summarize mode");
     }
-    println!("prompt: {}", args.prompt.join(" "));
+
     let client = client::Client::new(openapi_key.unwrap());
 
     fn callback(response: &StreamedResponse) {
