@@ -118,6 +118,7 @@ pub(crate) struct CompletionRequest {
 }
 
 impl CompletionRequest {
+    #[allow(dead_code)]
     pub(crate) async fn call(&self, client: Client, callback: fn(String)) {
         client.call(self, callback).await
     }
@@ -167,22 +168,6 @@ pub(crate) fn request(messages: Vec<&CompletionMessage>) -> CompletionRequest {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // Generate tests for StreamedResponse
-    macro_rules! test_streamed_response {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (input, expected) = $value;
-                    let streamed_response = StreamedResponse::from_str(input);
-                    assert_eq!(streamed_response, expected);
-                }
-            )*
-        }
-    }
-
-
 
     #[test]
     fn test_completion_message_new() {

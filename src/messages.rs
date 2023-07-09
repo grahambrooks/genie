@@ -63,21 +63,18 @@ impl<'a> Template<'a> {
 
 // rust multi-line string
 
-static SHELL_TEMPLATE_TEXT: &str = r#"###
-Role name: shell
+static SHELL_TEMPLATE_TEXT: &str = r#"###Role name: shell
 Provide only {{shell}} commands for {{os}} without any description.
 If there is a lack of details, provide most logical solution.
 Ensure the output is a valid shell command.
 If multiple steps required try to combine them together.
-
 Request: {{request}}
 ###
 Command:"#;
 
 pub(crate) static SHELL_TEMPLATE: Template = Template { content: SHELL_TEMPLATE_TEXT, required_fields: &["shell", "os", "request"] };
 
-static CODE_TEMPLATE_TEXT: &str = r#"###
-Provide only code as output without any description.
+static CODE_TEMPLATE_TEXT: &str = r#"###Provide only code as output without any description.
 IMPORTANT: Provide only plain text without Markdown formatting.
 IMPORTANT: Do not include markdown formatting such as ```.
 If there is a lack of details, provide most logical solution.
@@ -93,10 +90,10 @@ static DEFAULT_TEMPLATE_TEXT: &str = r#"###"You are Command Line App dev-shell, 
 You are managing {{os}} operating system with {{shell}} shell.
 Provide only plain text without Markdown formatting.
 Do not show any warnings or information regarding your capabilities.
-If you need to store any data, assume it will be stored in the chat.    
+If you need to store any data, assume it will be stored in the chat.
 Request: {{request}}
 "#;
-pub(crate) static DEFAULT_TEMPLATE: Template = Template { 
+pub(crate) static DEFAULT_TEMPLATE: Template = Template {
     content: DEFAULT_TEMPLATE_TEXT,
     required_fields: &["shell", "os", "request"]
 };
@@ -128,13 +125,11 @@ mod tests {
             ("os", "Darwin/MacOS 13.4"),
             ("request", "install ohmyzsh"),
         ];
-        assert_eq!(SHELL_TEMPLATE.expand(variables).unwrap(), r#"###
-Role name: shell
+        assert_eq!(SHELL_TEMPLATE.expand(variables).unwrap(), r#"###Role name: shell
 Provide only zsh commands for Darwin/MacOS 13.4 without any description.
 If there is a lack of details, provide most logical solution.
 Ensure the output is a valid shell command.
 If multiple steps required try to combine them together.
-
 Request: install ohmyzsh
 ###
 Command:"#);

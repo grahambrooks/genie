@@ -14,7 +14,14 @@ mod context;
 mod messages;
 
 #[derive(Parser, Debug)]
-#[command(author = "Graham Brooks", version = "0.1", about = "Shell for AI assisted development", long_about = None)]
+#[command(author = "Graham Brooks", version = "0.1", about = "Shell for AI assisted development", long_about = r#"Shell for AI assisted development.
+
+    In default mode dev-shell responds to prompts and exists.
+
+    In command mode dev-shell generates a command line give the prompt and the option to run the command.
+
+    In code mode dev-shell generates source code in response to the prompt.
+"#, )]
 struct Args {
     #[arg(long, help = "generate a command line give the prompt and the option to run the command")]
     command: bool,
