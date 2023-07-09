@@ -43,6 +43,7 @@ impl Client {
             };
         }
     }
+
     pub(crate) async fn call_streamed_response(&self, request: &CompletionRequest, callback: fn(&StreamedResponse)) {
         let mut stream = self.client.post("https://api.openai.com/v1/chat/completions")
             .bearer_auth(self.token.clone())
@@ -59,12 +60,14 @@ impl Client {
                     for byte in item {
                         if byte == b'\n' {
                             let line = String::from_utf8(buffer.clone()).unwrap();
-
-                            if line.starts_with("data:") {
-                                let data = line.strip_prefix("data:").unwrap().to_string();
-                                match StreamedResponse::from_string(data) {
-                                    Ok(a) => callback(&a),
-                                    Err(e) => println!("Error decoding line {}", e),
+                            // println!("Line: {}", line);
+                            if line.starts_with("data: ") {
+                                let data = line.strip_prefix("data: ").unwrap().to_string();
+                                if !data.starts_with("[DONE]") {
+                                    match StreamedResponse::from_string(data) {
+                                        Ok(a) => callback(&a),
+                                        Err(e) => println!("Error decoding line {}", e),
+                                    }
                                 }
                             }
                             buffer.clear();
