@@ -39,3 +39,18 @@ cargo build --release
 add the binary `target/release/dev-shell` to your path or copy to a directory that is already on your path.
 
 
+## Use-cases
+
+### Summarize for a git commit 
+
+The following summarizes changes and commits those changes.
+
+```bash
+git diff | dev-shell Summarize changes as a git commit message. | git commit -a -F -
+```
+
+Which is a little long-winded, so you can create an alias in your shell.
+
+```bash
+alias dscommit="git diff | dev-shell Summarize changes as a git commit message. | git commit -a -F -"
+```
