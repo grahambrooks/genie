@@ -21,6 +21,8 @@ mod messages;
     In command mode dev-shell generates a command line give the prompt and the option to run the command.
 
     In code mode dev-shell generates source code in response to the prompt.
+
+    dev-shell needs an OPENAI_API_KEY environment variable set to a valid OpenAI API key.
 "#, )]
 struct Args {
     #[arg(long, help = "generate a command line give the prompt and the option to run the command")]
