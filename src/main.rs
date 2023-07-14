@@ -29,6 +29,8 @@ struct Args {
     command: bool,
     #[arg(long, help = "generate source code in response to the prompt")]
     code: bool,
+    #[arg(long, help = "List the available models")]
+    list_models: bool,
     prompt: Vec<String>,
 }
 
@@ -38,6 +40,7 @@ fn key() -> Result<String, VarError> {
 
 #[tokio::main]
 async fn main() {
+    let current_model = GPT_3_5_TURBO;
     let openapi_key = key();
 
     match openapi_key {
@@ -47,8 +50,22 @@ async fn main() {
             return;
         }
     }
-
     let args = Args::parse();
+
+    if args.list_models {
+        let client = client::Client::new(openapi_key.unwrap());
+        let models = client.list_models().await;
+        println!("Available models:");
+        for model in models {
+            if model.id == current_model {
+                println!("* {}", model.id, );
+                continue;
+            }
+            println!("  {}", model.id, );
+        }
+        return;
+    }
+
 
     if args.prompt.is_empty() {
         println!("Please provide a prompt. dev-shell --help for more information.");

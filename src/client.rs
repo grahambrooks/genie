@@ -1,4 +1,5 @@
 use futures::StreamExt;
+use serde_json::Value;
 
 use crate::completion::{CompletionRequest, StreamedResponse};
 
@@ -9,6 +10,22 @@ pub(crate) struct Client {
 
 pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
 
+// #[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct Model {
+    pub id: String,
+}
+
+impl Model {
+    fn from_json(json: &Value) -> Model {
+        Model {
+            id: match json["id"] {
+                Value::Null => "undefined".to_string(),
+                _ => json["id"].as_str().unwrap().to_string(),
+            },
+        }
+    }
+}
+
 impl Client {
     pub(crate) fn new(bearer_token: String) -> Client {
         Client {
@@ -16,6 +33,25 @@ impl Client {
             token: bearer_token,
         }
     }
+
+    pub(crate) async fn list_models(&self) -> Vec<Model> {
+        let response = self.client.get("https://api.openai.com/v1/engines")
+            .bearer_auth(self.token.clone())
+            .send()
+            .await
+            .unwrap()
+            .json::<Value>()
+            .await
+            .unwrap();
+
+        let mut models: Vec<Model> = Vec::new();
+        for model in response["data"].as_array().unwrap() {
+            models.push(Model::from_json(model));
+        }
+
+        models
+    }
+
 
     #[allow(dead_code)]
     pub(crate) async fn call(&self, request: &CompletionRequest, callback: fn(String)) {
