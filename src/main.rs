@@ -75,53 +75,53 @@ async fn main() {
     let client = client::Client::new(openapi_key.unwrap());
 
     if args.command {
-        command(client, args.prompt).await;
+        command(client, current_model, args.prompt).await;
         return;
     }
 
     if args.code {
-        code(client, args.prompt).await;
+        code(client, current_model, args.prompt).await;
         return;
     }
 
-    default(client, args.prompt).await;
+    default(client, current_model, args.prompt).await;
 }
 
-async fn command(client: client::Client, elements: Vec<String>) {
+async fn command(client: client::Client, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
-    let messages = SHELL_TEMPLATE.expand(vec![
+
+    let messages = expand_template(prompt, &SHELL_TEMPLATE);
+
+    make_request(client, model, messages).await;
+}
+
+async fn code(client: client::Client, model: &str, elements: Vec<String>) {
+    let mut prompt = elements.join(" ").to_string();
+    prompt.push_str(read_stdin().as_str());
+
+    let messages = expand_template(prompt, &CODE_TEMPLATE);
+
+    make_request(client, model, messages).await;
+}
+
+
+async fn default(client: client::Client, model: &str, elements: Vec<String>) {
+    let mut prompt = elements.join(" ").to_string();
+    prompt.push_str(read_stdin().as_str());
+
+    let messages = expand_template(prompt, &DEFAULT_TEMPLATE);
+
+    make_request(client, model, messages).await;
+}
+
+fn expand_template(prompt: String, template: &messages::Template) -> String {
+    template.expand(vec![
         ("shell", context::shell().as_str()),
         ("os", context::os().as_str()),
         ("request", prompt.as_str()),
-    ]).unwrap();
-
-    make_request(client, messages).await;
-}
-
-async fn code(client: client::Client, elements: Vec<String>) {
-    let mut prompt = elements.join(" ").to_string();
-    prompt.push_str(read_stdin().as_str());
-
-    let messages = CODE_TEMPLATE.expand(vec![
-        ("request", prompt.as_str()),
-    ]).unwrap();
-
-    make_request(client, messages).await;
-}
-
-async fn default(client: client::Client, elements: Vec<String>) {
-    let mut prompt = elements.join(" ").to_string();
-    prompt.push_str(read_stdin().as_str());
-
-    let messages = DEFAULT_TEMPLATE.expand(vec![
-        ("shell", context::shell().as_str()),
-        ("os", context::os().as_str()),
-        ("request", prompt.as_str()),
-    ]).unwrap();
-
-    make_request(client, messages).await;
+    ]).unwrap()
 }
 
 
@@ -143,11 +143,11 @@ fn read_stdin() -> String {
     result.to_string()
 }
 
-async fn make_request(client: client::Client, prompt: String) {
+async fn make_request(client: client::Client, model: &str, prompt: String) {
     completion::request([
         &CompletionMessage::from_str("user", prompt.as_str())
     ].to_vec())
-        .model(GPT_3_5_TURBO)
+        .model(model)
         .temperature(0.5)
         .stream()
         .call_streamed_response(client, callback)

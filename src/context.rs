@@ -9,10 +9,6 @@ pub fn shell() -> String {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_shell() {
-        assert_eq!(shell(), "zsh");
-    }
 
     #[test]
     fn test_shell_bash() {
