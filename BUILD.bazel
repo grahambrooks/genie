@@ -1,0 +1,16 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+
+rust_binary(
+    name = "dev-shell",
+    srcs = ["src/main.rs",
+    "src/client.rs",
+    "src/completion.rs",
+    "src/context.rs",
+    "src/messages.rs",
+    ],
+    deps = all_crate_deps(
+        normal = True,
+    ),
+    edition = "2021"
+)

@@ -1,14 +1,13 @@
 // Read the shell from the SHELL environment variable. and return the name of the shell app
 pub fn shell() -> String {
-    let shell = std::env::var("SHELL").unwrap();
-    let shell = shell.split("/").last().unwrap();
+    let shell_env = std::env::var("SHELL").unwrap();
+    let shell = shell_env.split('/').last().unwrap();
     shell.to_string()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
 
     #[test]
     fn test_shell_bash() {

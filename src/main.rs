@@ -187,7 +187,7 @@ fn callback(response: &StreamedResponse) {
 }
 
 #[allow(dead_code)]
-fn exec() -> std::io::Result<()> {
+fn exec() -> io::Result<()> {
     let output = Command::new("ls")
         .arg("-l")
         .arg("/")
@@ -212,9 +212,9 @@ fn exec() -> std::io::Result<()> {
 fn action() -> bool {
     let stdin = io::stdin();
     for c in stdin.keys() {
-        match c.unwrap() {
-            Key::Char('e') => return true,
-            _ => return false,
+        return match c.unwrap() {
+            Key::Char('e') => true,
+            _ => false,
         }
     }
     false
