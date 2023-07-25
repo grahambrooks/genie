@@ -1,8 +1,13 @@
+extern crate termion;
+
 use std::{env, io};
 use std::env::VarError;
 use std::io::Read;
+use std::process::Command;
 
 use clap::Parser;
+use termion::event::Key;
+use termion::input::TermRead;
 
 use crate::client::GPT_3_5_TURBO;
 use crate::completion::{CompletionMessage, StreamedResponse};
@@ -75,8 +80,24 @@ async fn main() {
     let client = client::Client::new(openapi_key.unwrap());
 
     if args.command {
-        command(client, current_model, args.prompt).await;
+
+        if action() {
+            println!("action");
+        } else {
+            println!("no action");
+        }
+
+        match exec() {
+            Ok(_) => (),
+            Err(e) => {
+                println!("exec error: {}", e);
+                return;
+            }
+        }
         return;
+
+        // command(client, current_model, args.prompt).await;
+        // return;
     }
 
     if args.code {
@@ -163,4 +184,38 @@ fn callback(response: &StreamedResponse) {
             None => (),
         }
     });
+}
+
+#[allow(dead_code)]
+fn exec() -> std::io::Result<()> {
+    let output = Command::new("ls")
+        .arg("-l")
+        .arg("/")
+        .output()?;
+
+    if output.status.success() {
+        let s = String::from_utf8_lossy(&output.stdout);
+
+        print!("ls -l returned:\n{}", s);
+    } else {
+        let s = String::from_utf8_lossy(&output.stderr);
+
+        eprint!("ls -l returned an error:\n{}", s);
+    }
+
+    Ok(())
+}
+
+
+#[allow(dead_code)]
+#[allow(clippy::never_loop)]
+fn action() -> bool {
+    let stdin = io::stdin();
+    for c in stdin.keys() {
+        match c.unwrap() {
+            Key::Char('e') => return true,
+            _ => return false,
+        }
+    }
+    false
 }

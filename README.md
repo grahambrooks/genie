@@ -54,3 +54,31 @@ Which is a little long-winded, so you can create an alias in your shell.
 ```bash
 alias dscommit="git diff | dev-shell Summarize changes as a git commit message. | git commit -a -F -"
 ```
+## Repository maintenance
+
+Currently, repository maintenance is manual and run semi regularly.
+
+### Updating the rust toolchain
+
+```bash
+rustup update
+```
+
+Remember to update the rust toolchain used by bazel in the WORKSPACE.bazel file.
+
+### Updating dependencies
+
+The following command will update the Cargo.lock file with the latest versions of dependencies.
+
+```bash
+cargo update
+```
+
+### Updating/syncing bazel dependencies
+
+This command then takes the updated dependencies and updates the equivalent bazel dependencies.
+
+```bash
+export CARGO_BAZEL_REPIN=true
+bazel test //...
+```

@@ -7,38 +7,66 @@ on:
 
 jobs:
   build:
-    name: Build
-    strategy:
-      matrix:
-        platform:
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
-          - { os: windows-latest, target: x86_64-pc-windows-msvc }
-          - { os: macos-latest, target: x86_64-apple-darwin }
-          - { os: macos-latest, target: aarch64-apple-darwin }
-
-    runs-on: ${{ matrix.platform.os }}
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Rust toolchain
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           override: true
-          target: ${{ matrix.platform.target }}
 
-      - name: Build project
+      - name: Build and test
         uses: actions-rs/cargo@v1
         with:
-          command: build
-          args: --release --target ${{ matrix.platform.target }}
+          command: test
 
-      - name: Upload binary
+      - name: Install Cross
+        run: cargo install cross
+
+      - name: Cross-compile and create tarball
+        run: |
+          cross build --target TARGET --release
+          tar czf TARGET.tar.gz -C target/TARGET/release MyCliTool
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.repository_name }}-${{ matrix.platform.target }}
-          path: |
-            target/${{ matrix.platform.target }}/release/dev-shell
+          name: TARGET
+          path: TARGET.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: TARGET
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./TARGET.tar.gz
+          asset_name: TARGET.tar.gz
+          asset_content_type: application/gzip
