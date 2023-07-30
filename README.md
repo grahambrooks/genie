@@ -22,6 +22,12 @@ git log HEAD~2 | dev-shell Summarize as a release note
 
 - Rust stable https://www.rust-lang.org/tools/install or via rustup https://rustup.rs
 
+You will also need a ChatGPT API key. You can get one from https://openai.com and then set it as an environment variable.
+
+```bash
+export OPENAI_API_KEY=<your key>
+```
+
 ### Install from crates.io
 
 ```bash
