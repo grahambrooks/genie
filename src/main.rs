@@ -80,6 +80,10 @@ async fn main() {
     let client = client::Client::new(openapi_key.unwrap());
 
     if args.command {
+        if true {
+            println!("--command not currently implemented");
+            return;
+        }
 
         if action() {
             println!("action");
@@ -94,10 +98,9 @@ async fn main() {
                 return;
             }
         }
-        return;
 
-        // command(client, current_model, args.prompt).await;
-        // return;
+        command(client, current_model, args.prompt).await;
+        return;
     }
 
     if args.code {
@@ -215,7 +218,7 @@ fn action() -> bool {
         return match c.unwrap() {
             Key::Char('e') => true,
             _ => false,
-        }
+        };
     }
     false
 }
