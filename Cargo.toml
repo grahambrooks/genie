@@ -1,6 +1,6 @@
 [package]
 name = "dev-shell"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Graham Brooks<graham@grahambrooks.com>"]
 description = "A command line shell for using GenerativeAI tools in the command line"
