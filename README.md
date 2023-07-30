@@ -16,7 +16,17 @@ git log HEAD~2 | dev-shell Summarize as a release note
 
 ![ci](https://github.com/grahambrooks/dev-shell/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/dev-shell/actions/workflows/build.yaml/badge.svg) ![security audit](https://github.com/grahambrooks/dev-shell/actions/workflows/security-audit.yaml/badge.svg)
 
+## Installing
 
+### Prerequisites
+
+- Rust stable https://www.rust-lang.org/tools/install or via rustup https://rustup.rs
+
+### Install from crates.io
+
+```bash
+cargo install dev-shell
+````
 
 ## Building
 
@@ -82,3 +92,9 @@ This command then takes the updated dependencies and updates the equivalent baze
 export CARGO_BAZEL_REPIN=true
 bazel test //...
 ```
+
+## Inspiration
+
+This project was inspired by the follow and the desire to learn Rust.
+
+https://github.com/TheR1D/shell_gpt
