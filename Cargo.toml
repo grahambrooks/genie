@@ -1,3 +1,8 @@
+[workspace]
+members = [
+    "openai"
+]
+
 [package]
 name = "dev-shell"
 version = "0.0.2"
@@ -13,6 +18,8 @@ name = "dev-shell"
 path = "src/main.rs"
 
 [dependencies]
+openai = { path = "openai" }
+os_info = "3.7.0"
 atty = "0.2.14"
 serde = { version = "1.0.68", features = ["derive"] }
 serde_json = "1.0.68"
@@ -21,5 +28,4 @@ futures = { version = "0.3.28" }
 clap = { version = "4.3.8", features = ["derive"] }
 reqwest = { version = "0.11", features = ["stream", "blocking", "json"] }
 tera = "1.19.0"
-os_info = "3.7.0"
 termion = "2.0.1"

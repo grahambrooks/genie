@@ -312,6 +312,7 @@ dependencies = [
  "atty",
  "clap",
  "futures",
+ "openai",
  "os_info",
  "reqwest",
  "serde",
@@ -884,6 +885,17 @@ name = "once_cell"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
+
+[[package]]
+name = "openai"
+version = "0.0.1"
+dependencies = [
+ "futures",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
 
 [[package]]
 name = "openssl"

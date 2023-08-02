@@ -1,21 +1,146 @@
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
-use crate::client::{Client, GPT_3_5_TURBO};
+pub struct Client {
+    client: reqwest::Client,
+    token: String,
+}
+
+pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
+
+// #[derive(Serialize, Deserialize, Debug)]
+pub struct Model {
+    pub id: String,
+}
+
+impl Model {
+    fn from_json(json: &Value) -> Model {
+        Model {
+            id: match json["id"] {
+                Value::Null => "undefined".to_string(),
+                _ => json["id"].as_str().unwrap().to_string(),
+            },
+        }
+    }
+}
+
+impl Client {
+    pub fn new(bearer_token: String) -> Client {
+        Client {
+            client: reqwest::Client::new(),
+            token: bearer_token,
+        }
+    }
+
+    pub async fn list_models(&self) -> Vec<Model> {
+        let response = self
+            .client
+            .get("https://api.openai.com/v1/engines")
+            .bearer_auth(self.token.clone())
+            .send()
+            .await
+            .unwrap()
+            .json::<Value>()
+            .await
+            .unwrap();
+
+        let mut models: Vec<Model> = Vec::new();
+        for model in response["data"].as_array().unwrap() {
+            models.push(Model::from_json(model));
+        }
+
+        models
+    }
+
+    #[allow(dead_code)]
+    pub async fn call(&self, request: &CompletionRequest, callback: fn(String)) {
+        let mut stream = self
+            .client
+            .post("https://api.openai.com/v1/chat/completions")
+            .bearer_auth(self.token.clone())
+            .json(request)
+            .send()
+            .await
+            .unwrap()
+            .bytes_stream();
+
+        let mut buffer = Vec::new();
+        while let Some(item) = stream.next().await {
+            match item {
+                Ok(item) => {
+                    for byte in item {
+                        if byte == b'\n' {
+                            callback(String::from_utf8(buffer.clone()).unwrap());
+                            buffer.clear();
+                        } else {
+                            buffer.push(byte);
+                        }
+                    }
+                }
+                Err(e) => println!("Error: {}", e),
+            };
+        }
+    }
+
+    pub async fn call_streamed_response(
+        &self,
+        request: &CompletionRequest,
+        callback: fn(&StreamedResponse),
+    ) {
+        let mut stream = self
+            .client
+            .post("https://api.openai.com/v1/chat/completions")
+            .bearer_auth(self.token.clone())
+            .json(request)
+            .send()
+            .await
+            .unwrap()
+            .bytes_stream();
+
+        let mut buffer = Vec::new();
+        while let Some(item) = stream.next().await {
+            match item {
+                Ok(item) => {
+                    for byte in item {
+                        if byte == b'\n' {
+                            let line = String::from_utf8(buffer.clone()).unwrap();
+                            // println!("Line: {}", line);
+                            if line.starts_with("data: ") {
+                                let data = line.strip_prefix("data: ").unwrap().to_string();
+                                if !data.starts_with("[DONE]") {
+                                    match StreamedResponse::from_string(data) {
+                                        Ok(a) => callback(&a),
+                                        Err(e) => println!("Error decoding line {}", e),
+                                    }
+                                }
+                            }
+                            buffer.clear();
+                        } else {
+                            buffer.push(byte);
+                        }
+                    }
+                }
+                Err(e) => println!("Error: {}", e),
+            };
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct CompletionMessage {
+pub struct CompletionMessage {
     role: String,
     content: String,
 }
 
 impl CompletionMessage {
-    pub(crate) fn new(role: String, content: String) -> CompletionMessage {
+    pub fn new(role: String, content: String) -> CompletionMessage {
         CompletionMessage {
             role: role.to_string(),
             content: content.to_string(),
         }
     }
-    pub(crate) fn from_str(role: &str, content: &str) -> CompletionMessage {
+    pub fn from_str(role: &str, content: &str) -> CompletionMessage {
         CompletionMessage {
             role: role.to_string(),
             content: content.to_string(),
@@ -23,22 +148,21 @@ impl CompletionMessage {
     }
 }
 
-
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Delta {
+pub struct Delta {
     pub role: Option<String>,
     pub content: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct Choice {
+pub struct Choice {
     index: u32,
     finish_reason: Option<String>,
     pub delta: Delta,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct StreamedResponse {
+pub struct StreamedResponse {
     pub id: String,
     pub object: String,
     pub created: u64,
@@ -47,13 +171,13 @@ pub(crate) struct StreamedResponse {
 }
 
 impl StreamedResponse {
-    pub(crate) fn from_string(line: String) -> serde_json::Result<StreamedResponse> {
+    pub fn from_string(line: String) -> serde_json::Result<StreamedResponse> {
         return serde_json::from_str(line.as_str());
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct CompletionRequest {
+pub struct CompletionRequest {
     // The model to use for completion.
     model: String,
     // The suffix that comes after a completion of inserted text.
@@ -114,35 +238,34 @@ pub(crate) struct CompletionRequest {
     best_of: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
-    user: Option<String>,  // A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. Learn more.
+    user: Option<String>, // A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. Learn more.
 }
 
 impl CompletionRequest {
     #[allow(dead_code)]
-    pub(crate) async fn call(&self, client: Client, callback: fn(String)) {
+    pub async fn call(&self, client: Client, callback: fn(String)) {
         client.call(self, callback).await
     }
 
-    pub(crate) async fn call_streamed_response(&self, client: Client, callback: fn(&StreamedResponse)) {
+    pub async fn call_streamed_response(&self, client: Client, callback: fn(&StreamedResponse)) {
         client.call_streamed_response(self, callback).await
     }
 
-    pub(crate) fn temperature(mut self, temp: f32) -> CompletionRequest {
+    pub fn temperature(mut self, temp: f32) -> CompletionRequest {
         self.temperature = temp;
         self
     }
-    pub(crate) fn model(mut self, model: &str) -> CompletionRequest {
+    pub fn model(mut self, model: &str) -> CompletionRequest {
         self.model = model.to_string();
         self
     }
-    pub(crate) fn stream(mut self) -> CompletionRequest {
+    pub fn stream(mut self) -> CompletionRequest {
         self.stream = true;
         self
     }
 }
 
-
-pub(crate) fn request(messages: Vec<&CompletionMessage>) -> CompletionRequest {
+pub fn request(messages: Vec<&CompletionMessage>) -> CompletionRequest {
     CompletionRequest {
         messages: messages
             .iter()
@@ -168,6 +291,12 @@ pub(crate) fn request(messages: Vec<&CompletionMessage>) -> CompletionRequest {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_client() {
+        let c = Client::new("a test token".to_string());
+        assert_eq!(c.token, "a test token");
+    }
 
     #[test]
     fn test_completion_message_new() {
@@ -206,22 +335,19 @@ mod tests {
 
     #[test]
     fn test_setting_temperature() {
-        let r = request(vec![])
-            .temperature(0.1);
+        let r = request(vec![]).temperature(0.1);
         assert_eq!(r.temperature, 0.1);
     }
 
     #[test]
     fn test_setting_model() {
-        let r = request(vec![])
-            .model("model");
+        let r = request(vec![]).model("model");
         assert_eq!(r.model, "model");
     }
 
     #[test]
     fn test_setting_stream() {
-        let r = request(vec![])
-            .stream();
+        let r = request(vec![]).stream();
         assert!(r.stream);
     }
 
