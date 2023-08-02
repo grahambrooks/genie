@@ -63,8 +63,8 @@ async fn main() {
     let args = Args::parse();
 
     if args.list_models {
-        let client = openai::Client::new(openapi_key.unwrap());
-        let models = client.list_models().await;
+        let connection = openai::Connection::new(openapi_key.unwrap());
+        let models = connection.list_models().await;
         println!("Available models:");
         for model in models {
             if model.id == current_model {
@@ -81,7 +81,7 @@ async fn main() {
         return;
     }
 
-    let client = openai::Client::new(openapi_key.unwrap());
+    let connection = openai::Connection::new(openapi_key.unwrap());
 
     if args.command {
         if true {
@@ -103,43 +103,43 @@ async fn main() {
             }
         }
 
-        command(client, current_model, args.prompt).await;
+        command(connection, current_model, args.prompt).await;
         return;
     }
 
     if args.code {
-        code(client, current_model, args.prompt).await;
+        code(connection, current_model, args.prompt).await;
         return;
     }
 
-    default(client, current_model, args.prompt).await;
+    default(connection, current_model, args.prompt).await;
 }
 
-async fn command(client: openai::Client, model: &str, elements: Vec<String>) {
+async fn command(connection: openai::Connection, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
     let messages = expand_template(prompt, &SHELL_TEMPLATE);
 
-    make_request(client, model, messages).await;
+    make_request(connection, model, messages).await;
 }
 
-async fn code(client: openai::Client, model: &str, elements: Vec<String>) {
+async fn code(connection: openai::Connection, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
     let messages = expand_template(prompt, &CODE_TEMPLATE);
 
-    make_request(client, model, messages).await;
+    make_request(connection, model, messages).await;
 }
 
-async fn default(client: openai::Client, model: &str, elements: Vec<String>) {
+async fn default(connection: openai::Connection, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
     let messages = expand_template(prompt, &DEFAULT_TEMPLATE);
 
-    make_request(client, model, messages).await;
+    make_request(connection, model, messages).await;
 }
 
 fn expand_template(prompt: String, template: &messages::template::Template) -> String {
@@ -170,16 +170,16 @@ fn read_stdin() -> String {
     result.to_string()
 }
 
-async fn make_request(client: openai::Client, model: &str, prompt: String) {
+async fn make_request(connection: openai::Connection, model: &str, prompt: String) {
     openai::request([&CompletionMessage::from_str("user", prompt.as_str())].to_vec())
         .model(model)
         .temperature(0.5)
         .stream()
-        .call_streamed_response(client, callback)
+        .call_streamed_response(connection, stream_callback)
         .await;
 }
 
-fn callback(response: &StreamedResponse) {
+fn stream_callback(response: &StreamedResponse) {
     response.choices.iter().for_each(|c| {
         let content = &c.delta.content;
         match content {
@@ -211,10 +211,7 @@ fn exec() -> io::Result<()> {
 fn action() -> bool {
     let stdin = io::stdin();
     for c in stdin.keys() {
-        return match c.unwrap() {
-            Key::Char('e') => true,
-            _ => false,
-        };
+        return matches!(c.unwrap(), Key::Char('e'));
     }
     false
 }

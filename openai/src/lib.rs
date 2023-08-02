@@ -2,7 +2,7 @@ use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-pub struct Client {
+pub struct Connection {
     client: reqwest::Client,
     token: String,
 }
@@ -25,9 +25,9 @@ impl Model {
     }
 }
 
-impl Client {
-    pub fn new(bearer_token: String) -> Client {
-        Client {
+impl Connection {
+    pub fn new(bearer_token: String) -> Connection {
+        Connection {
             client: reqwest::Client::new(),
             token: bearer_token,
         }
@@ -105,7 +105,6 @@ impl Client {
                     for byte in item {
                         if byte == b'\n' {
                             let line = String::from_utf8(buffer.clone()).unwrap();
-                            // println!("Line: {}", line);
                             if line.starts_with("data: ") {
                                 let data = line.strip_prefix("data: ").unwrap().to_string();
                                 if !data.starts_with("[DONE]") {
@@ -243,11 +242,11 @@ pub struct CompletionRequest {
 
 impl CompletionRequest {
     #[allow(dead_code)]
-    pub async fn call(&self, client: Client, callback: fn(String)) {
+    pub async fn call(&self, client: Connection, callback: fn(String)) {
         client.call(self, callback).await
     }
 
-    pub async fn call_streamed_response(&self, client: Client, callback: fn(&StreamedResponse)) {
+    pub async fn call_streamed_response(&self, client: Connection, callback: fn(&StreamedResponse)) {
         client.call_streamed_response(self, callback).await
     }
 
@@ -279,7 +278,6 @@ pub fn request(messages: Vec<&CompletionMessage>) -> CompletionRequest {
         n: None,
         stream: false,
         logprobs: None,
-        // echo: false,
         stop: None,
         number: None,
         frequency_penalty: None,
@@ -294,7 +292,7 @@ mod tests {
 
     #[test]
     fn test_client() {
-        let c = Client::new("a test token".to_string());
+        let c = Connection::new("a test token".to_string());
         assert_eq!(c.token, "a test token");
     }
 
