@@ -1,26 +1,28 @@
 extern crate termion;
 
+use std::{env, io};
 use std::env::VarError;
 use std::io::Read;
 use std::process::Command;
-use std::{env, io};
 
 use clap::Parser;
 use termion::event::Key;
 use termion::input::TermRead;
 
+use openai::{CompletionMessage, GPT_3_5_TURBO, StreamedResponse};
+
 use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
-use openai::{CompletionMessage, StreamedResponse, GPT_3_5_TURBO};
 
 mod messages;
 mod context;
 
 #[derive(Parser, Debug)]
 #[command(
-    author = "Graham Brooks",
-    version = "0.1",
-    about = "Shell for AI assisted development",
-    long_about = r#"Shell for AI assisted development.
+color = clap::ColorChoice::Auto,
+author = "Graham Brooks",
+version = "0.1",
+about = "Shell for AI assisted development",
+long_about = r#"Shell for AI assisted development.
 
     In default mode dev-shell responds to prompts and exists.
 
@@ -33,8 +35,8 @@ mod context;
 )]
 struct Args {
     #[arg(
-        long,
-        help = "generate a command line give the prompt and the option to run the command"
+    long,
+    help = "generate a command line give the prompt and the option to run the command"
     )]
     command: bool,
     #[arg(long, help = "generate source code in response to the prompt")]
@@ -68,10 +70,10 @@ async fn main() {
         println!("Available models:");
         for model in models {
             if model.id == current_model {
-                println!("* {}", model.id,);
+                println!("* {}", model.id, );
                 continue;
             }
-            println!("  {}", model.id,);
+            println!("  {}", model.id, );
         }
         return;
     }
@@ -153,21 +155,24 @@ fn expand_template(prompt: String, template: &messages::template::Template) -> S
 }
 
 fn read_stdin() -> String {
-    let mut result: String = "".to_string();
+    let mut stdin_content = "".to_string();
+
     if !atty::is(atty::Stream::Stdin) {
-        let mut buffer: String = "".to_string();
-        match io::stdin().read_to_string(&mut buffer) {
+        let mut input_buffer = "".to_string();
+
+        match io::stdin().read_to_string(&mut input_buffer) {
             Ok(_) => {
-                result.push('\n');
-                result.push_str(buffer.as_str());
+                stdin_content.push('\n');
+                stdin_content.push_str(&input_buffer);
             }
-            Err(error) => {
-                println!("Failed to read from stdin: {}", error);
+            Err(err) => {
+                println!("Failed to read from stdin: {}", err);
                 return "".to_string();
             }
         }
     }
-    result.to_string()
+
+    stdin_content
 }
 
 async fn make_request(connection: openai::Connection, model: &str, prompt: String) {
