@@ -6,6 +6,8 @@
 
 This is a ChatGPT CLI application written in Rust. The application allows users to interact with the ChatGPT API for AI text generation within their terminal.
 
+If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a few. Many use interpreted languages and need your system to be setup to use the toolchain and dependencies. dev-shell is written in rust. A key goal of the project is to make it super easy to install. Typiclly download a single binary and you're done. (except fo the small dependency on an OpenAI application key)
+
 As a cli the application can accept input from other tools.
 
 ```bash
