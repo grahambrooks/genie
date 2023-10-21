@@ -15,6 +15,7 @@ use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
 
 mod messages;
 mod context;
+mod server;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -43,6 +44,8 @@ struct Args {
     code: bool,
     #[arg(long, help = "List the available models")]
     list_models: bool,
+    #[arg(long, help = "Run as a web server")]
+    server: bool,
     prompt: Vec<String>,
 }
 
@@ -78,6 +81,11 @@ async fn main() {
         return;
     }
 
+    if args.server {
+        let _ = server::start().await;
+        return;
+    }
+
     if args.prompt.is_empty() {
         println!("Please provide a prompt. dev-shell --help for more information.");
         return;
@@ -86,10 +94,10 @@ async fn main() {
     let connection = openai::Connection::new(openapi_key.unwrap());
 
     if args.command {
-        if true {
-            println!("--command not currently implemented");
-            return;
-        }
+        // if true {
+        //     println!("--command not currently implemented");
+        //     return;
+        // }
 
         if action() {
             println!("action");

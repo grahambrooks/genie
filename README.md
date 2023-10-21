@@ -82,23 +82,12 @@ Currently, repository maintenance is manual and run semi regularly.
 rustup update
 ```
 
-Remember to update the rust toolchain used by bazel in the WORKSPACE.bazel file.
-
 ### Updating dependencies
 
 The following command will update the Cargo.lock file with the latest versions of dependencies.
 
 ```bash
 cargo update
-```
-
-### Updating/syncing bazel dependencies
-
-This command then takes the updated dependencies and updates the equivalent bazel dependencies.
-
-```bash
-export CARGO_BAZEL_REPIN=true
-bazel test //...
 ```
 
 ## Inspiration
