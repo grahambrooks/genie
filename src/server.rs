@@ -53,6 +53,7 @@ async fn handle(_req: hyper::Request<Body>) -> Result<Response<Body>, Infallible
     eprintln!("path {}", path);
     let file_path = path.as_str();
     let asset = ASSETS.get_file(file_path);
+
     match asset {
         Some(file) => {
             let mime = mime_guess::from_path(file_path).first_or_octet_stream();
