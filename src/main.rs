@@ -16,12 +16,13 @@ use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
 mod messages;
 mod context;
 mod server;
+mod web_socket;
 
 #[derive(Parser, Debug)]
 #[command(
 color = clap::ColorChoice::Auto,
 author = "Graham Brooks",
-version = "0.1",
+version,
 about = "Shell for AI assisted development",
 long_about = r#"Shell for AI assisted development.
 
@@ -55,6 +56,7 @@ fn key() -> Result<String, VarError> {
 
 #[tokio::main]
 async fn main() {
+    // let current_model = GPT_3_5_TURBO;
     let current_model = GPT_3_5_TURBO;
     let openapi_key = key();
 
@@ -156,7 +158,7 @@ fn expand_template(prompt: String, template: &messages::template::Template) -> S
     template
         .expand(vec![
             ("shell", context::shell().as_str()),
-            ("os", context::os().as_str()),
+            ("os", context::os_type_and_version().as_str()),
             ("request", prompt.as_str()),
         ])
         .unwrap()

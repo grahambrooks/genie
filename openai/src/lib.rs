@@ -8,7 +8,7 @@ pub struct Connection {
 }
 
 pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
-
+pub const GPT_4_0: &str = "gpt-4-1106-preview";
 // #[derive(Serialize, Deserialize, Debug)]
 pub struct Model {
     pub id: String,
