@@ -2,9 +2,11 @@ extern crate termion;
 
 use std::{env, io};
 use std::env::VarError;
+use std::error::Error;
 use std::io::Read;
 use std::process::Command;
 
+use async_openai::Client;
 use clap::Parser;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -70,16 +72,11 @@ async fn main() {
     let args = Args::parse();
 
     if args.list_models {
-        let connection = openai::Connection::new(openapi_key.unwrap());
-        let models = connection.list_models().await;
-        println!("Available models:");
-        for model in models {
-            if model.id == current_model {
-                println!("* {}", model.id, );
-                continue;
-            }
-            println!("  {}", model.id, );
+        match list_models(current_model).await {
+            Ok(_) => {}
+            Err(_) => { println!("Error listing available models") }
         }
+
         return;
     }
 
@@ -125,6 +122,22 @@ async fn main() {
     }
 
     default(connection, current_model, args.prompt).await;
+}
+
+async fn list_models(current_model: &str) -> Result<(), Box<dyn Error>> {
+    let client = Client::new();
+
+    let model_list = client.models().list().await?;
+
+
+    for model in model_list.data {
+        if model.id == current_model {
+            println!("* {}", model.id, );
+            continue;
+        }
+        println!("  {}", model.id, );
+    }
+    Ok(())
 }
 
 async fn command(connection: openai::Connection, model: &str, elements: Vec<String>) {

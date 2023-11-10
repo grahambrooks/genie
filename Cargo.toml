@@ -34,3 +34,4 @@ tera = "1.19.0"
 termion = "2.0.1"
 mime_guess = { version = "2.0.4", features = [] }
 tokio-tungstenite = "0.20.1"
+async-openai = "0.16.0"
