@@ -1,8 +1,3 @@
-[workspace]
-members = [
-    "openai"
-]
-
 [package]
 name = "dev-shell"
 version = "0.0.3"
@@ -19,7 +14,6 @@ name = "dev-shell"
 path = "src/main.rs"
 
 [dependencies]
-openai = { path = "openai" }
 hyper = { version = "0.14", features = ["full"] }
 include_dir = "0.7.3"
 os_info = "3.7.0"

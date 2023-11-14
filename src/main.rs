@@ -1,17 +1,22 @@
 extern crate termion;
 
+
 use std::{env, io};
 use std::env::VarError;
 use std::error::Error;
-use std::io::Read;
+use std::io::{Read, stdout, Write};
 use std::process::Command;
 
 use async_openai::Client;
+use async_openai::config::OpenAIConfig;
+use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, CreateImageRequestArgs, ImageSize, ResponseFormat};
 use clap::Parser;
+use futures::StreamExt;
 use termion::event::Key;
 use termion::input::TermRead;
 
-use openai::{CompletionMessage, GPT_3_5_TURBO, StreamedResponse};
+pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
+pub const GPT_4_0: &str = "gpt-4-1106-preview";
 
 use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
 
@@ -45,6 +50,8 @@ struct Args {
     command: bool,
     #[arg(long, help = "generate source code in response to the prompt")]
     code: bool,
+    #[arg(long, help = "generate images based on the prompt")]
+    image: bool,
     #[arg(long, help = "List the available models")]
     list_models: bool,
     #[arg(long, help = "Run as a web server")]
@@ -90,7 +97,12 @@ async fn main() {
         return;
     }
 
-    let connection = openai::Connection::new(openapi_key.unwrap());
+    let connection = Client::new();
+
+    if args.image {
+        let _ = generate_images(connection, args.prompt).await;
+        return;
+    }
 
     if args.command {
         // if true {
@@ -124,6 +136,30 @@ async fn main() {
     default(connection, current_model, args.prompt).await;
 }
 
+async fn generate_images(client: Client<OpenAIConfig>,  elements: Vec<String>) -> Result<(), Box<dyn Error>> {
+    let mut prompt = elements.join(" ").to_string();
+    prompt.push_str(read_stdin().as_str());
+
+    println!("image prompt: {}", prompt);
+    let request = CreateImageRequestArgs::default()
+        .prompt(prompt)
+        .n(2)
+        .response_format(ResponseFormat::Url)
+        .size(ImageSize::S1024x1024)
+        .user("async-openai")
+        .build()?;
+
+    let response = client.images().create(request).await?;
+
+    let paths = response.save("./data").await?;
+
+    paths
+        .iter()
+        .for_each(|path| println!("Image file path: {}", path.display()));
+
+    Ok(())
+}
+
 async fn list_models(current_model: &str) -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
@@ -140,31 +176,31 @@ async fn list_models(current_model: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn command(connection: openai::Connection, model: &str, elements: Vec<String>) {
+async fn command(connection: Client<OpenAIConfig>, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
     let messages = expand_template(prompt, &SHELL_TEMPLATE);
 
-    make_request(connection, model, messages).await;
+    let _ = make_request(connection, model, messages).await;
 }
 
-async fn code(connection: openai::Connection, model: &str, elements: Vec<String>) {
+async fn code(connection: Client<OpenAIConfig>, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
     let messages = expand_template(prompt, &CODE_TEMPLATE);
 
-    make_request(connection, model, messages).await;
+    let _ = make_request(connection, model, messages).await;
 }
 
-async fn default(connection: openai::Connection, model: &str, elements: Vec<String>) {
+async fn default(connection: Client<OpenAIConfig>, model: &str, elements: Vec<String>) {
     let mut prompt = elements.join(" ").to_string();
     prompt.push_str(read_stdin().as_str());
 
     let messages = expand_template(prompt, &DEFAULT_TEMPLATE);
 
-    make_request(connection, model, messages).await;
+    let _ = make_request(connection, model, messages).await;
 }
 
 fn expand_template(prompt: String, template: &messages::template::Template) -> String {
@@ -198,24 +234,47 @@ fn read_stdin() -> String {
     stdin_content
 }
 
-async fn make_request(connection: openai::Connection, model: &str, prompt: String) {
-    openai::request([&CompletionMessage::from_str("user", prompt.as_str())].to_vec())
+async fn make_request(connection: Client<OpenAIConfig>, model: &str, prompt: String) -> Result<(), Box<dyn Error>> {
+    let request = CreateChatCompletionRequestArgs::default()
         .model(model)
-        .temperature(0.5)
-        .stream()
-        .call_streamed_response(connection, stream_callback)
-        .await;
+        .max_tokens(512u16)
+        .messages([ChatCompletionRequestUserMessageArgs::default()
+            .content(prompt)
+            .build()?
+            .into()])
+        .build()?;
+
+    let mut stream = connection.chat().create_stream(request).await?;
+
+    // From Rust docs on print: https://doc.rust-lang.org/std/macro.print.html
+    //
+    //  Note that stdout is frequently line-buffered by default so it may be necessary
+    //  to use io::stdout().flush() to ensure the output is emitted immediately.
+    //
+    //  The print! macro will lock the standard output on each call.
+    //  If you call print! within a hot loop, this behavior may be the bottleneck of the loop.
+    //  To avoid this, lock stdout with io::stdout().lock():
+
+    let mut lock = stdout().lock();
+    while let Some(result) = stream.next().await {
+        match result {
+            Ok(response) => {
+                response.choices.iter().for_each(|chat_choice| {
+                    if let Some(ref content) = chat_choice.delta.content {
+                        write!(lock, "{}", content).unwrap();
+                    }
+                });
+            }
+            Err(err) => {
+                writeln!(lock, "error: {err}").unwrap();
+            }
+        }
+        stdout().flush()?;
+    }
+
+    Ok(())
 }
 
-fn stream_callback(response: &StreamedResponse) {
-    response.choices.iter().for_each(|c| {
-        let content = &c.delta.content;
-        match content {
-            Some(content) => print!("{}", content),
-            None => (),
-        }
-    });
-}
 
 #[allow(dead_code)]
 fn exec() -> io::Result<()> {

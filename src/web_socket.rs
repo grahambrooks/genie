@@ -1,12 +1,11 @@
-use tokio::net::TcpListener;
-use tokio_tungstenite::tungstenite::protocol::Message;
-use tokio_tungstenite::tungstenite::Error as WsError;
-use tokio_tungstenite::WebSocketStream;
-use futures::{SinkExt, StreamExt};
 use std::error::Error;
-use tokio::net::TcpStream;
+
+use futures::{SinkExt, StreamExt};
 use serde::Deserialize;
-use serde_json::Value;
+use tokio::net::TcpListener;
+use tokio_tungstenite::tungstenite::Error as WsError;
+use tokio_tungstenite::tungstenite::protocol::Message;
+use tokio_tungstenite::WebSocketStream;
 
 type WsTcpStream = WebSocketStream<tokio::net::TcpStream>;
 
@@ -49,8 +48,6 @@ async fn start() -> Result<(), Box<dyn Error>> {
     let server = TcpListener::bind("127.0.0.1:8080").await?;
 
     // non blocking loop to accept all incoming connnections
-
-
 
 
     while let Ok((stream, _)) = server.accept().await {
