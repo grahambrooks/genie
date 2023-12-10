@@ -1,4 +1,4 @@
-# dev-shell a rust cli for interacting with ChatGPT
+# genie a rust cli for interacting with ChatGPT
 
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 
@@ -6,17 +6,17 @@
 
 This is a ChatGPT CLI application written in Rust. The application allows users to interact with the ChatGPT API for AI text generation within their terminal.
 
-If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a few. Many use interpreted languages and need your system to be setup to use the toolchain and dependencies. dev-shell is written in rust. A key goal of the project is to make it super easy to install. Typiclly download a single binary and you're done. (except fo the small dependency on an OpenAI application key)
+If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a few. Many use interpreted languages and need your system to be setup to use the toolchain and dependencies. genie is written in rust. A key goal of the project is to make it super easy to install. Typiclly download a single binary and you're done. (except fo the small dependency on an OpenAI application key)
 
 As a cli the application can accept input from other tools.
 
 ```bash
-git log HEAD~2 | dev-shell Summarize as a release note
+git log HEAD~2 | genie Summarize as a release note
 ```
 
 ### Project build and release status
 
-![ci](https://github.com/grahambrooks/dev-shell/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/dev-shell/actions/workflows/build.yaml/badge.svg) ![security audit](https://github.com/grahambrooks/dev-shell/actions/workflows/security-audit.yaml/badge.svg)
+![ci](https://github.com/grahambrooks/genie/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/genie/actions/workflows/build.yaml/badge.svg) ![security audit](https://github.com/grahambrooks/genie/actions/workflows/security-audit.yaml/badge.svg)
 
 ## Installing
 
@@ -33,7 +33,7 @@ export OPENAI_API_KEY=<your key>
 ### Install from crates.io
 
 ```bash
-cargo install dev-shell
+cargo install genie
 ````
 
 ## Building
@@ -54,7 +54,7 @@ Build the application
 cargo build --release
 ```
 
-add the binary `target/release/dev-shell` to your path or copy to a directory that is already on your path.
+add the binary `target/release/genie` to your path or copy to a directory that is already on your path.
 
 ### Building the web assets
 
@@ -69,7 +69,7 @@ npx tailwindcss -i ./static/input.css -o ./static/site.css --watch
 ### Running as a local web appliction
 
 ```bash
-dev-shell --server
+genie --server
 ```
 This starts the app as a local web server available on http://localhost:3000
 
@@ -79,13 +79,13 @@ This starts the app as a local web server available on http://localhost:3000
 The following summarizes changes and commits those changes.
 
 ```bash
-git diff | dev-shell Summarize changes as a git commit message. | git commit -a -F -
+git diff | genie Summarize changes as a git commit message. | git commit -a -F -
 ```
 
 Which is a little long-winded, so you can create an alias in your shell.
 
 ```bash
-alias dscommit="git diff | dev-shell Summarize changes as a git commit message. | git commit -a -F -"
+alias dscommit="git diff | genie Summarize changes as a git commit message. | git commit -a -F -"
 ```
 ## Repository maintenance
 

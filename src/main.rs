@@ -9,21 +9,22 @@ use std::process::Command;
 
 use async_openai::Client;
 use async_openai::config::OpenAIConfig;
-use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, CreateImageRequestArgs, ImageSize, ResponseFormat};
+use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs};
 use clap::Parser;
 use futures::StreamExt;
 use termion::event::Key;
 use termion::input::TermRead;
 
+use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
+
 pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
 pub const GPT_4_0: &str = "gpt-4-1106-preview";
-
-use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
 
 mod messages;
 mod context;
 mod server;
 mod web_socket;
+mod images;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -33,13 +34,13 @@ version,
 about = "Shell for AI assisted development",
 long_about = r#"Shell for AI assisted development.
 
-    In default mode dev-shell responds to prompts and exists.
+    In default mode genie responds to prompts and exists.
 
-    In command mode dev-shell generates a command line give the prompt and the option to run the command.
+    In command mode genie generates a command line give the prompt and the option to run the command.
 
-    In code mode dev-shell generates source code in response to the prompt.
+    In code mode genie generates source code in response to the prompt.
 
-    dev-shell needs an OPENAI_API_KEY environment variable set to a valid OpenAI API key.
+    genie needs an OPENAI_API_KEY environment variable set to a valid OpenAI API key.
 "#
 )]
 struct Args {
@@ -93,14 +94,24 @@ async fn main() {
     }
 
     if args.prompt.is_empty() {
-        println!("Please provide a prompt. dev-shell --help for more information.");
+        println!(r"
+Please provide a prompt on the command line.
+e.g. genie how far away is the sun
+genie --help
+for more information.");
         return;
     }
 
     let connection = Client::new();
 
     if args.image {
-        let _ = generate_images(connection, args.prompt).await;
+        match images::generator(connection).generate(args.prompt).await {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Error generating images: {}", e);
+                return;
+            }
+        }
         return;
     }
 
@@ -136,29 +147,6 @@ async fn main() {
     default(connection, current_model, args.prompt).await;
 }
 
-async fn generate_images(client: Client<OpenAIConfig>,  elements: Vec<String>) -> Result<(), Box<dyn Error>> {
-    let mut prompt = elements.join(" ").to_string();
-    prompt.push_str(read_stdin().as_str());
-
-    println!("image prompt: {}", prompt);
-    let request = CreateImageRequestArgs::default()
-        .prompt(prompt)
-        .n(2)
-        .response_format(ResponseFormat::Url)
-        .size(ImageSize::S1024x1024)
-        .user("async-openai")
-        .build()?;
-
-    let response = client.images().create(request).await?;
-
-    let paths = response.save("./data").await?;
-
-    paths
-        .iter()
-        .for_each(|path| println!("Image file path: {}", path.display()));
-
-    Ok(())
-}
 
 async fn list_models(current_model: &str) -> Result<(), Box<dyn Error>> {
     let client = Client::new();

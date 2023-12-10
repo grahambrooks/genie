@@ -444,27 +444,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a1abaf4d861455be59f64fd2b55606cb151fce304ede7165f410243ce96bde6"
 
 [[package]]
-name = "dev-shell"
-version = "0.0.3"
-dependencies = [
- "async-openai",
- "atty",
- "clap",
- "futures",
- "hyper",
- "include_dir",
- "mime_guess",
- "os_info",
- "reqwest",
- "serde",
- "serde_json",
- "tera",
- "termion",
- "tokio",
- "tokio-tungstenite",
-]
-
-[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -643,6 +622,28 @@ checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
 dependencies = [
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "genie"
+version = "0.0.3"
+dependencies = [
+ "async-openai",
+ "atty",
+ "clap",
+ "futures",
+ "hyper",
+ "include_dir",
+ "log",
+ "mime_guess",
+ "os_info",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tera",
+ "termion",
+ "tokio",
+ "tokio-tungstenite",
 ]
 
 [[package]]

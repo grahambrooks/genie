@@ -1,0 +1,58 @@
+use async_openai::Client;
+use async_openai::config::OpenAIConfig;
+use async_openai::types::{CreateImageRequestArgs, ImageSize, ResponseFormat};
+use log::info;
+
+pub(crate) const IMAGE_COUNT: u8 = 2;
+pub(crate) const IMAGE_SIZE: ImageSize = ImageSize::S1024x1024;
+pub(crate) const SAVE_PATH: &str = "./data";
+
+pub(crate) struct Generator {
+    client: Client<OpenAIConfig>,
+    count: u8,
+    size: ImageSize,
+    path: &'static str,
+}
+
+pub(crate) fn generator(client: Client<OpenAIConfig>) -> Generator {
+    Generator { client: client, count: IMAGE_COUNT, size: IMAGE_SIZE, path: SAVE_PATH }
+}
+
+impl Generator {
+    pub(crate) fn count(&mut self, count: u8) -> &mut Self {
+        self.count = count;
+        self
+    }
+
+    pub(crate) fn size(&mut self, size: ImageSize) -> &mut Self {
+        self.size = size;
+        self
+    }
+
+    pub(crate) fn path(&mut self, path: &'static str) -> &mut Self {
+        self.path = path;
+        self
+    }
+    pub(crate) async fn generate(&self, elements: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
+        let prompt = elements.join(" ").to_string();
+
+        info!("image prompt: {}", prompt);
+        let request = CreateImageRequestArgs::default()
+            .prompt(prompt)
+            .n(self.count)
+            .response_format(ResponseFormat::Url)
+            .size(self.size)
+            .user("async-openai")
+            .build()?;
+
+        let response = self.client.images().create(request).await?;
+
+        let paths = response.save(self.path).await?;
+
+        for path in &paths {
+            info!("Image file path: {}", path.display());
+        }
+
+        Ok(())
+    }
+}

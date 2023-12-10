@@ -1,16 +1,16 @@
 [package]
-name = "dev-shell"
+name = "genie"
 version = "0.0.3"
 build = "build.rs"
 edition = "2021"
 authors = ["Graham Brooks<graham@grahambrooks.com>"]
 description = "A command line shell for using GenerativeAI tools in the command line"
 readme = "README.md"
-repository = "https://github.com/grahambrooks/dev-shell"
+repository = "https://github.com/grahambrooks/genie"
 license = "MIT"
 
 [[bin]]
-name = "dev-shell"
+name = "genie"
 path = "src/main.rs"
 
 [dependencies]
@@ -29,3 +29,4 @@ termion = "2.0.1"
 mime_guess = { version = "2.0.4", features = [] }
 tokio-tungstenite = "0.20.1"
 async-openai = "0.16.0"
+log = "0.4.20"
