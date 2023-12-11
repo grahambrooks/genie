@@ -56,3 +56,25 @@ impl Generator {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    // use async_openai::Client;
+    // use async_openai::types::ImageSize;
+    use super::*;
+
+    #[test]
+    fn test_construction() {
+        let connection = Client::new();
+
+        let mut gen = generator(connection);
+        let foo = gen.count(100).path("/foo").size(ImageSize::S512x512);
+        validate_generator(&foo, 100, "/foo", ImageSize::S512x512);
+    }
+
+    fn validate_generator(gen: &Generator, count: u8, path: &str, size: ImageSize) {
+        assert_eq!(gen.size, size);
+        assert_eq!(gen.count, count);
+        assert_eq!(gen.path, path);
+    }
+}

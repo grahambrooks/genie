@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use futures::{SinkExt, StreamExt};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Error as WsError;
 use tokio_tungstenite::tungstenite::protocol::Message;
@@ -9,12 +9,42 @@ use tokio_tungstenite::WebSocketStream;
 
 type WsTcpStream = WebSocketStream<tokio::net::TcpStream>;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Request {
     command: String,
     message: String,
 }
 
+impl Request {
+    /// Client with default [OpenAIConfig]
+    pub fn new(command: &str, message: &str) -> Self {
+        Self {
+            command: command.to_string(),
+            message: message.to_string(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_request_construction() {
+        let request = Request::new("do", "it");
+        assert_eq!("do", request.command);
+        assert_eq!("it", request.message);
+    }
+
+    #[test]
+    fn test_serialization() {
+        let request = Request::new("do", "it");
+        let serialized = serde_json::to_string(&request).unwrap();
+        assert_eq!(serialized, "{\"command\":\"do\",\"message\":\"it\"}");
+    }
+}
+
+#[allow(dead_code)]
 async fn handle_connection(stream: WsTcpStream) {
     let (mut write, mut read) = stream.split();
 
@@ -43,7 +73,7 @@ async fn handle_connection(stream: WsTcpStream) {
 
     println!("Connection closed");
 }
-
+#[allow(dead_code)]
 async fn start() -> Result<(), Box<dyn Error>> {
     let server = TcpListener::bind("127.0.0.1:8080").await?;
 
