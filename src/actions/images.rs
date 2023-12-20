@@ -7,7 +7,7 @@ use crate::model::ChatTrait;
 pub(crate) struct GenerateImagesCommand {}
 
 impl GenerateImagesCommand {
-    pub fn new(adaptor: Box<dyn ChatTrait>) -> Self {
+    pub fn new(_adaptor: Box<dyn ChatTrait>) -> Self {
         GenerateImagesCommand {}
     }
 }

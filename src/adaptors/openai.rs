@@ -86,4 +86,8 @@ impl ChatTrait for OpenAIGPTChat {
             }
         }
     }
+
+    async fn shell(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
+        Ok(())
+    }
 }

@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use crate::actions::Action;
 use crate::model::ChatTrait;
 use crate::server;
@@ -7,7 +5,7 @@ use crate::server;
 pub(crate) struct ServerCommand {}
 
 impl ServerCommand {
-    pub fn new(adaptor: Box<dyn ChatTrait>) -> Self {
+    pub fn new(_adaptor: Box<dyn ChatTrait>) -> Self {
         ServerCommand {}
     }
 }

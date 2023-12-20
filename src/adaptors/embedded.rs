@@ -12,7 +12,7 @@ use crate::model::ChatTrait;
 pub(crate) struct EmbeddedChat {}
 
 impl EmbeddedChat {
-    pub(crate) fn new(model: String) -> Self {
+    pub(crate) fn new(_model: String) -> Self {
         Self {}
     }
 }
@@ -28,10 +28,10 @@ impl Display for EmbeddedChat {
 
 #[async_trait]
 impl ChatTrait for EmbeddedChat {
-    async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+    async fn prompt(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
         match generate_code().await {
             Ok(_) => Ok(()),
-            Err(e) => Ok(()),
+            Err(_e) => Ok(()),
         }
     }
 
@@ -39,7 +39,11 @@ impl ChatTrait for EmbeddedChat {
         todo!()
     }
 
-    async fn generate_images(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+    async fn generate_images(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
+        todo!()
+    }
+
+    async fn shell(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
         todo!()
     }
 }

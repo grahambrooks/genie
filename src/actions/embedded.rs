@@ -19,7 +19,7 @@ impl Action for EmbeddedChatCommand {
         futures::executor::block_on(async {
             match self.adaptor.prompt(user_prompt).await {
                 Ok(_) => (),
-                Err(e) => (),
+                Err(_e) => (),
             }
         });
         Ok(())

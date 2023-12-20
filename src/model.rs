@@ -11,11 +11,17 @@ pub(crate) struct Model {
     model_name: String,
 }
 
+pub(crate) trait ShellExecutor {
+    fn execute(&self) -> Result<(), Box<dyn Error>>;
+}
+
 #[async_trait]
 pub(crate) trait ChatTrait {
     async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>>;
     async fn list_models(&self) -> Result<(), Box<dyn Error>>;
     async fn generate_images(&self, prompt: String) -> Result<(), Box<dyn Error>>;
+
+    async fn shell(&self, prompt: String) -> Result<(), Box<dyn Error>>;
 }
 
 impl Display for Model {

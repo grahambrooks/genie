@@ -14,7 +14,7 @@ impl ListModelsCommand {
 }
 
 impl Action for ListModelsCommand {
-    fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+    fn exec(&self, _user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("models");
         futures::executor::block_on(async {
             match self.adaptor.list_models().await {
