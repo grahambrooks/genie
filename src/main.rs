@@ -5,6 +5,7 @@ use std::{env, io};
 use std::env::VarError;
 use std::error::Error;
 use std::io::{Read, stdout, Write};
+use std::ops::Deref;
 use std::process::Command;
 
 use async_openai::Client;
@@ -16,6 +17,7 @@ use termion::event::Key;
 use termion::input::TermRead;
 
 use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
+use crate::model::Model;
 
 pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
 pub const GPT_4_0: &str = "gpt-4-1106-preview";
@@ -25,6 +27,9 @@ mod context;
 mod server;
 mod web_socket;
 mod images;
+mod model;
+mod actions;
+mod adaptors;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -57,6 +62,10 @@ struct Args {
     list_models: bool,
     #[arg(long, help = "Run as a web server")]
     server: bool,
+    #[arg(long, help = "use local model")]
+    local: bool,
+    #[arg(long, help = "the model. e.g. openai::gpt-4, ollama::mistral to use", default_value = "openai::gpt-3.5-turbo")]
+    model: String,
     prompt: Vec<String>,
 }
 
@@ -66,85 +75,135 @@ fn key() -> Result<String, VarError> {
 
 #[tokio::main]
 async fn main() {
-    // let current_model = GPT_3_5_TURBO;
+    let args = Args::parse();
     let current_model = GPT_3_5_TURBO;
-    let openapi_key = key();
 
-    match openapi_key {
+    let mut user_prompt = args.prompt.join(" ").to_string();
+    user_prompt.push_str(read_stdin().as_str());
+
+
+    let cmd = parse_command_from_args(args);
+
+    match cmd.exec(user_prompt) {
         Ok(_) => (),
         Err(e) => {
-            println!("OPENAPI_KEY error: {}", e);
+            println!("Error: {}", e);
             return;
         }
-    }
-    let args = Args::parse();
+    };
 
-    if args.list_models {
-        match list_models(current_model).await {
-            Ok(_) => {}
-            Err(_) => { println!("Error listing available models") }
-        }
+//     let model = model::Model::from_string(args.model.as_str());
+//     let _ = model.chat_adaptor().prompt(args.prompt.join(" ").to_string()).await;
+//
+//     let openapi_key = key();
+//     match openapi_key {
+//         Ok(_) => (),
+//         Err(e) => {
+//             println!("OPENAPI_KEY error: {}", e);
+//             return;
+//         }
+//     }
+//
+//     if args.list_models {
+//         match list_models(current_model).await {
+//             Ok(_) => {}
+//             Err(_) => { println!("Error listing available models") }
+//         }
+//
+//         return;
+//     }
+//
+//     if args.server {
+//         let _ = server::start().await;
+//         return;
+//     }
+//
+//     if args.prompt.is_empty() {
+//         println!(r"
+// Please provide a prompt on the command line.
+// e.g. genie how far away is the sun
+// genie --help
+// for more information.");
+//         return;
+//     }
+//
+//     let connection = Client::new();
+//
+//     if args.image {
+//         match images::generator(connection)
+//             .count(images::IMAGE_COUNT)
+//             .size(images::IMAGE_SIZE)
+//             .path(images::SAVE_PATH)
+//             .generate(args.prompt).await {
+//             Ok(_) => (),
+//             Err(e) => {
+//                 println!("Error generating images: {}", e);
+//                 return;
+//             }
+//         }
+//         return;
+//     }
+//
+//     if args.command {
+//         // if true {
+//         //     println!("--command not currently implemented");
+//         //     return;
+//         // }
+//
+//         if action() {
+//             println!("action");
+//         } else {
+//             println!("no action");
+//         }
+//
+//         match exec() {
+//             Ok(_) => (),
+//             Err(e) => {
+//                 println!("exec error: {}", e);
+//                 return;
+//             }
+//         }
+//
+//         command(connection, current_model, args.prompt).await;
+//         return;
+//     }
+//
+//     if args.code {
+//         code(connection, current_model, args.prompt).await;
+//         return;
+//     }
+//
+//     default(connection, current_model, args.prompt).await;
+}
 
-        return;
-    }
-
-    if args.server {
-        let _ = server::start().await;
-        return;
-    }
-
-    if args.prompt.is_empty() {
-        println!(r"
-Please provide a prompt on the command line.
-e.g. genie how far away is the sun
-genie --help
-for more information.");
-        return;
-    }
-
-    let connection = Client::new();
-
-    if args.image {
-        match images::generator(connection).generate(args.prompt).await {
-            Ok(_) => (),
-            Err(e) => {
-                println!("Error generating images: {}", e);
-                return;
-            }
-        }
-        return;
-    }
+fn parse_command_from_args(args: Args) -> Box<dyn actions::Action> {
+    let adaptor = Model::from_string(args.model.as_str()).chat_adaptor();
 
     if args.command {
-        // if true {
-        //     println!("--command not currently implemented");
-        //     return;
-        // }
-
-        if action() {
-            println!("action");
-        } else {
-            println!("no action");
-        }
-
-        match exec() {
-            Ok(_) => (),
-            Err(e) => {
-                println!("exec error: {}", e);
-                return;
-            }
-        }
-
-        command(connection, current_model, args.prompt).await;
-        return;
+        return Box::new(actions::shell::ShellCommand::new(adaptor));
     }
 
     if args.code {
-        code(connection, current_model, args.prompt).await;
-        return;
+        return Box::new(actions::code::GenerateCodeCommand::new(adaptor));
     }
 
-    default(connection, current_model, args.prompt).await;
+    if args.image {
+        return Box::new(actions::images::GenerateImagesCommand::new(adaptor));
+    }
+
+    if args.server {
+        return Box::new(actions::server::ServerCommand::new(adaptor));
+    }
+
+    if args.list_models {
+        return Box::new(actions::list_models::ListModelsCommand::new(adaptor));
+    }
+
+    if args.local {
+        return Box::new(actions::embedded::EmbeddedChatCommand::new(adaptor));
+    }
+
+    Box::new(actions::chat::ChatCommand::new(adaptor))
 }
 
 

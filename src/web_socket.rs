@@ -17,6 +17,7 @@ struct Request {
 
 impl Request {
     /// Client with default [OpenAIConfig]
+    #[allow(dead_code)]
     pub fn new(command: &str, message: &str) -> Self {
         Self {
             command: command.to_string(),

@@ -14,6 +14,8 @@ name = "genie"
 path = "src/main.rs"
 
 [dependencies]
+orca = { git = "https://github.com/scrippt-tech/orca", package = "orca-core" }
+ollama-rs = "0.1.5"
 hyper = { version = "0.14", features = ["full"] }
 include_dir = "0.7.3"
 os_info = "3.7.0"
@@ -30,3 +32,6 @@ mime_guess = { version = "2.0.4", features = [] }
 tokio-tungstenite = "0.20.1"
 async-openai = "0.16.0"
 log = "0.4.20"
+env_logger = "0.10.0"
+anyhow = "1.0.75"
+async-trait = "0.1.74"

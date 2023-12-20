@@ -33,12 +33,10 @@ impl Generator {
         self.path = path;
         self
     }
-    pub(crate) async fn generate(&self, elements: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
-        let prompt = elements.join(" ").to_string();
-
-        info!("image prompt: {}", prompt);
+    pub(crate) async fn generate(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+        info!("image prompt: {}", user_prompt);
         let request = CreateImageRequestArgs::default()
-            .prompt(prompt)
+            .prompt(user_prompt)
             .n(self.count)
             .response_format(ResponseFormat::Url)
             .size(self.size)
