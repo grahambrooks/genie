@@ -7,7 +7,7 @@ use orca::llm::quantized::Quantized;
 use orca::pipeline::Pipeline;
 use orca::pipeline::simple::LLMPipeline;
 
-use crate::model::ChatTrait;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct EmbeddedChat {}
 
@@ -33,6 +33,10 @@ impl ChatTrait for EmbeddedChat {
             Ok(_) => Ok(()),
             Err(_e) => Ok(()),
         }
+    }
+
+    async fn generate_code(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        todo!()
     }
 
     async fn list_models(&self) -> Result<(), Box<dyn Error>> {

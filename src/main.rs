@@ -20,6 +20,7 @@ mod images;
 mod model;
 mod actions;
 mod adaptors;
+mod errors;
 
 #[derive(Parser, Debug)]
 #[command(

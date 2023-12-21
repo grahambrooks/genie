@@ -1,5 +1,5 @@
 use crate::actions::Action;
-use crate::model::ChatTrait;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct EmbeddedChatCommand {
     adaptor: Box<dyn ChatTrait>,
@@ -17,12 +17,8 @@ impl Action for EmbeddedChatCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("embedded_chat_command");
         futures::executor::block_on(async {
-            match self.adaptor.prompt(user_prompt).await {
-                Ok(_) => (),
-                Err(_e) => (),
-            }
-        });
-        Ok(())
+            self.adaptor.prompt(user_prompt).await
+        })
     }
 }
 

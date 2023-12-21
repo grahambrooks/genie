@@ -1,6 +1,9 @@
 use std::error::Error;
+
 use crate::actions::Action;
-use crate::model::{ChatTrait, ShellExecutor};
+use crate::adaptors::ChatTrait;
+use crate::errors::GenieError;
+use crate::model::ShellExecutor;
 
 pub(crate) struct ShellCommand {
     // adaptor: &'a dyn ChatTrait,
@@ -20,22 +23,22 @@ impl Action for ShellCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("command");
 
-        futures::executor::block_on(async {
+        let future = async {
             // let executor = Box::new(BashExecutor {});
             match self.adaptor.shell(user_prompt).await {
-                Ok(_) => (),
-                Err(e) => {
-                    println!("Error generating response: {}", e);
-                }
+                Ok(_) => Ok(()),
+                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
             }
-        });
-        Ok(())
+        };
+        let result = futures::executor::block_on(future);
+
+        Ok(result?)
     }
 }
 
 struct BashExecutor {}
 
-impl ShellExecutor for  BashExecutor {
+impl ShellExecutor for BashExecutor {
     fn execute(&self) -> Result<(), Box<dyn Error>> {
         todo!()
     }

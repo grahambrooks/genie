@@ -1,5 +1,5 @@
 use crate::actions::Action;
-use crate::model::ChatTrait;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct ChatCommand {
     adaptor: Box<dyn ChatTrait>,
@@ -13,17 +13,13 @@ impl ChatCommand {
     }
 }
 
+
 impl Action for ChatCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
-        futures::executor::block_on(async {
-            match self.adaptor.prompt(user_prompt).await {
-                Ok(_) => (),
-                Err(e) => {
-                    println!("Error generating images: {}", e);
-                }
-            }
-        });
-        Ok(())
+        let future = async {
+            self.adaptor.prompt(user_prompt).await
+        };
+
+        futures::executor::block_on(future)
     }
 }
-

@@ -1,5 +1,6 @@
 use crate::actions::Action;
-use crate::model::ChatTrait;
+use crate::errors::GenieError;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct ListModelsCommand {
     adaptor: Box<dyn ChatTrait>,
@@ -16,14 +17,12 @@ impl ListModelsCommand {
 impl Action for ListModelsCommand {
     fn exec(&self, _user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("models");
-        futures::executor::block_on(async {
+        let result = futures::executor::block_on(async {
             match self.adaptor.list_models().await {
-                Ok(_) => (),
-                Err(e) => {
-                    println!("Error generating images: {}", e);
-                }
+                Ok(_) => Ok(()),
+                Err(e) => Err(Box::new(GenieError::new(&format!("Error generating response: {}", e))))
             }
         });
-        Ok(())
+        Ok(result?)
     }
 }

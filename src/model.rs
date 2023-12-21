@@ -2,9 +2,8 @@ use std::error::Error;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
-use async_trait::async_trait;
-
 use crate::adaptors;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct Model {
     protocol: String,
@@ -15,14 +14,6 @@ pub(crate) trait ShellExecutor {
     fn execute(&self) -> Result<(), Box<dyn Error>>;
 }
 
-#[async_trait]
-pub(crate) trait ChatTrait {
-    async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>>;
-    async fn list_models(&self) -> Result<(), Box<dyn Error>>;
-    async fn generate_images(&self, prompt: String) -> Result<(), Box<dyn Error>>;
-
-    async fn shell(&self, prompt: String) -> Result<(), Box<dyn Error>>;
-}
 
 impl Display for Model {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -49,7 +40,6 @@ impl Model {
     }
 
     pub(crate) fn chat_adaptor(&self) -> Box<dyn ChatTrait> {
-        // return an adaptor based on the protocol
         match self.protocol.as_str() {
             "ollama" => Box::new(adaptors::ollama::OllamaChat::new(self.model_name.clone())),
             "embedded" => Box::new(adaptors::embedded::EmbeddedChat::new(self.model_name.clone())),

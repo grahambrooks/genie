@@ -9,9 +9,10 @@ use ollama_rs::Ollama;
 use termion::event::Key;
 use termion::input::TermRead;
 
+use crate::errors::GenieError;
 use crate::expand_template;
-use crate::messages::{DEFAULT_TEMPLATE, SHELL_TEMPLATE};
-use crate::model::ChatTrait;
+use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct OllamaChat {
     model: String,
@@ -36,6 +37,21 @@ impl ChatTrait for OllamaChat {
             println!("{}", res.response);
         }
         Ok(())
+    }
+
+    async fn generate_code(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        let connection = Ollama::new("http://localhost".to_string(), 11434);
+        let model = self.model.to_string();
+        let messages = expand_template(prompt, &CODE_TEMPLATE);
+        println!("prompt: {}", messages);
+
+        match connection.generate(GenerationRequest::new(model, messages)).await {
+            Ok(res) => {
+                println!("{}", res.response);
+                Ok(())
+            }
+            Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e)))),
+        }
     }
 
     async fn list_models(&self) -> Result<(), Box<dyn Error>> {

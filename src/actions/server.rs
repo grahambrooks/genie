@@ -1,5 +1,6 @@
 use crate::actions::Action;
-use crate::model::ChatTrait;
+use crate::errors::GenieError;
+use crate::adaptors::ChatTrait;
 use crate::server;
 
 pub(crate) struct ServerCommand {}
@@ -13,14 +14,13 @@ impl ServerCommand {
 impl Action for ServerCommand {
     fn exec(&self, _user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("server");
-        futures::executor::block_on(async {
+        let result = futures::executor::block_on(async {
             match server::start().await {
-                Ok(_) => (),
-                Err(e) => {
-                    println!("Error starting server: {}", e);
-                }
+                Ok(_) => Ok(()),
+                Err(e) => Err(Box::new(GenieError::new(&format!("Error stating server: {}", e))))
             }
         });
-        Ok(())
+        
+        Ok(result?)
     }
 }

@@ -1,8 +1,9 @@
 use async_openai::Client;
 
 use crate::actions::Action;
+use crate::errors::GenieError;
 use crate::images;
-use crate::model::ChatTrait;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct GenerateImagesCommand {}
 
@@ -15,7 +16,7 @@ impl GenerateImagesCommand {
 impl Action for GenerateImagesCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("image");
-        futures::executor::block_on(async {
+        let result = futures::executor::block_on(async {
             let connection = Client::new();
 
             match images::generator(connection)
@@ -23,12 +24,11 @@ impl Action for GenerateImagesCommand {
                 .size(images::IMAGE_SIZE)
                 .path(images::SAVE_PATH)
                 .generate(user_prompt).await {
-                Ok(_) => (),
-                Err(e) => {
-                    println!("Error generating images: {}", e);
-                }
+                Ok(_) => Ok(()),
+                Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e))))
             }
         });
-        Ok(())
+
+        Ok(result?)
     }
 }

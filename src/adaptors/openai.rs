@@ -5,8 +5,9 @@ use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatComple
 use async_trait::async_trait;
 
 use crate::{expand_template, images, read_stdin};
+use crate::errors::GenieError;
 use crate::messages::CODE_TEMPLATE;
-use crate::model::ChatTrait;
+use crate::adaptors::ChatTrait;
 
 pub(crate) struct OpenAIGPTChat {
     model: String,
@@ -48,12 +49,14 @@ impl ChatTrait for OpenAIGPTChat {
                         println!("{}", content);
                     }
                 });
-            }
-            Err(err) => {
-                println!("error: {err}");
-            }
+                Ok(())
+            },
+            Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e)))),
         }
-        Ok(())
+    }
+
+    async fn generate_code(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        todo!()
     }
 
     async fn list_models(&self) -> Result<(), Box<dyn Error>> {
@@ -80,10 +83,7 @@ impl ChatTrait for OpenAIGPTChat {
             .path(images::SAVE_PATH)
             .generate(prompt).await {
             Ok(_) => Ok(()),
-            Err(e) => {
-                println!("Error generating images: {}", e);
-                Err(e)
-            }
+            Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e)))),
         }
     }
 
