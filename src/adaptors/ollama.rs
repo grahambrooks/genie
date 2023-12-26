@@ -29,6 +29,9 @@ impl OllamaChat {
 #[async_trait]
 impl ChatTrait for OllamaChat {
     async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        if prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+        }
         let messages = expand_template(prompt, &DEFAULT_TEMPLATE);
         let connection = Ollama::new("http://localhost".to_string(), 11434);
         let model = self.model.to_string();
@@ -40,6 +43,11 @@ impl ChatTrait for OllamaChat {
     }
 
     async fn generate_code(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        if prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+        }
+        
+        
         let connection = Ollama::new("http://localhost".to_string(), 11434);
         let model = self.model.to_string();
         let messages = expand_template(prompt, &CODE_TEMPLATE);
@@ -63,6 +71,9 @@ impl ChatTrait for OllamaChat {
     }
 
     async fn shell(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        if prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+        }
         let connection = Ollama::new("http://localhost".to_string(), 11434);
         let model = self.model.to_string();
         let messages = expand_template(prompt, &SHELL_TEMPLATE);

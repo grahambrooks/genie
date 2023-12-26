@@ -53,8 +53,8 @@ struct Args {
     list_models: bool,
     #[arg(long, help = "Run as a web server")]
     server: bool,
-    #[arg(long, help = "use local model")]
-    local: bool,
+    #[arg(long, help = "use embedded model")]
+    embedded: bool,
     #[arg(long, help = "the model. e.g. openai::gpt-4, ollama::mistral to use", default_value = "openai::gpt-3.5-turbo")]
     model: String,
     prompt: Vec<String>,
@@ -104,7 +104,7 @@ fn parse_command_from_args(args: Args) -> Box<dyn actions::Action> {
         return Box::new(actions::list_models::ListModelsCommand::new(adaptor));
     }
 
-    if args.local {
+    if args.embedded {
         return Box::new(actions::embedded::EmbeddedChatCommand::new(adaptor));
     }
 

@@ -5,9 +5,9 @@ use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatComple
 use async_trait::async_trait;
 
 use crate::{expand_template, images, read_stdin};
+use crate::adaptors::ChatTrait;
 use crate::errors::GenieError;
 use crate::messages::CODE_TEMPLATE;
-use crate::adaptors::ChatTrait;
 
 pub(crate) struct OpenAIGPTChat {
     model: String,
@@ -24,6 +24,9 @@ impl OpenAIGPTChat {
 #[async_trait]
 impl ChatTrait for OpenAIGPTChat {
     async fn prompt(&self, user_prompt: String) -> Result<(), Box<dyn Error>> {
+        if user_prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+        }
         let connection = Client::new();
 
         let mut prompt = user_prompt.clone();
@@ -50,12 +53,12 @@ impl ChatTrait for OpenAIGPTChat {
                     }
                 });
                 Ok(())
-            },
+            }
             Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e)))),
         }
     }
 
-    async fn generate_code(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+    async fn generate_code(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
         todo!()
     }
 
@@ -76,6 +79,9 @@ impl ChatTrait for OpenAIGPTChat {
     }
 
     async fn generate_images(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        if prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+        }
         let connection = Client::new();
         match images::generator(connection)
             .count(images::IMAGE_COUNT)

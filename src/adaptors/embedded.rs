@@ -8,6 +8,7 @@ use orca::pipeline::Pipeline;
 use orca::pipeline::simple::LLMPipeline;
 
 use crate::adaptors::ChatTrait;
+use crate::errors::GenieError;
 
 pub(crate) struct EmbeddedChat {}
 
@@ -28,14 +29,14 @@ impl Display for EmbeddedChat {
 
 #[async_trait]
 impl ChatTrait for EmbeddedChat {
-    async fn prompt(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
-        match generate_code().await {
-            Ok(_) => Ok(()),
-            Err(_e) => Ok(()),
+    async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+        if prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
         }
+        Ok(generate_code(prompt).await?)
     }
 
-    async fn generate_code(&self, prompt: String) -> Result<(), Box<dyn Error>> {
+    async fn generate_code(&self, _prompt: String) -> Result<(), Box<dyn Error>> {
         todo!()
     }
 
@@ -52,7 +53,7 @@ impl ChatTrait for EmbeddedChat {
     }
 }
 
-async fn generate_code() -> anyhow::Result<()> {
+async fn generate_code(prompt: String) -> anyhow::Result<()> {
     env_logger::init();
 
     let model = Quantized::new()
@@ -65,7 +66,7 @@ async fn generate_code() -> anyhow::Result<()> {
         .build_model()?;
 
     let pipe = LLMPipeline::new(&model)
-        .load_template("greet", "{{#chat}}{{#user}}fn fib(n: int32){{/user}}{{/chat}}")
+        .load_template("greet", &format!("{{#chat}}{{#user}}{}{{/user}}{{/chat}}", prompt))
         .unwrap();
     let result = pipe.execute("greet").await?;
 
