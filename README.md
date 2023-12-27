@@ -105,6 +105,30 @@ The following command will update the Cargo.lock file with the latest versions o
 cargo update
 ```
 
+## Architecture
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+C4Context
+    title Genie as a CLI assistant
+    Enterprise_Boundary(workstation, "Developer Workstation") {
+        Person(developer, "Developer", "Software Developer")
+
+        Boundary(terminal, "Terminal", "boundary") {
+            System(genie, "Genie", "A CLI assistant")
+        }
+
+        System_Boundary(ollama, "Ollama") {
+            System(ollama-service, "Ollama API")
+        }
+    }
+    System(openai, "OpenAI API")
+    Rel(developer, genie, "command line arguments")
+    Rel(genie, ollama-service, "Prompt")
+    Rel(genie, openai, "Prompt")
+
+```
+
 ## Inspiration
 
 This project was inspired by the follow and the desire to learn Rust.
