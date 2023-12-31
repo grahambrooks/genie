@@ -107,6 +107,8 @@ cargo update
 
 ## Architecture
 
+Running as a CLI application in the terminal
+
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 C4Context
@@ -122,8 +124,40 @@ C4Context
             System(ollama-service, "Ollama API")
         }
     }
-    System(openai, "OpenAI API")
+    Enterprise_Boundary(openai, "OpenAI") {
+        System(openai, "OpenAI API")
+    }
     Rel(developer, genie, "command line arguments")
+    Rel(genie, ollama-service, "Prompt")
+    Rel(genie, openai, "Prompt")
+
+```
+
+Supporting IDE plugins
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+C4Context
+    title Genie as a CLI assistant
+    Enterprise_Boundary(workstation, "Developer Workstation") {
+        Person(developer, "Developer", "Software Developer")
+
+        System_Boundary(ollama, "Ollama") {
+            System(ollama-service, "Ollama API")
+        }
+
+        System_Boundary(vscode, "VS Code") {
+            System(genie-vscode, "Genie Plugin")
+        }
+        System_Boundary(genie-service, "Genie Service") {
+            System(genie, "Genie API")
+        }
+    }
+    Enterprise_Boundary(openai, "OpenAI") {
+        System(openai, "OpenAI API")
+    }
+    Rel(developer, genie-vscode, "prompt")
+    Rel(genie-vscode, genie, "prompt")
     Rel(genie, ollama-service, "Prompt")
     Rel(genie, openai, "Prompt")
 
