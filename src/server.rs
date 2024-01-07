@@ -24,11 +24,11 @@ fn app() -> Router {
         .fallback(fallback)
 }
 
-async fn get_chats(request: Request) -> Json<Value> {
+async fn get_chats(_request: Request) -> Json<Value> {
     Json(serde_json::json!({ "chats": [] }))
 }
 
-async fn put_chat(request: Request) -> impl IntoResponse {
+async fn put_chat(_request: Request) -> impl IntoResponse {
     let data = serde_json::json!({ "chat": {} });
     (StatusCode::CREATED, Json(data))
 }
