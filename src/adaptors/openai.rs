@@ -21,6 +21,12 @@ impl OpenAIGPTChat {
     }
 }
 
+impl std::fmt::Display for OpenAIGPTChat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}::{}", "openai", self.model)
+    }
+}
+
 #[async_trait]
 impl ChatTrait for OpenAIGPTChat {
     async fn prompt(&self, user_prompt: String) -> Result<(), Box<dyn Error>> {

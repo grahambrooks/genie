@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fmt;
-use std::fmt::{Display, Formatter};
+use std::fmt::Display;
 
 use crate::adaptors;
 use crate::adaptors::ChatTrait;
@@ -15,9 +15,9 @@ pub(crate) trait ShellExecutor {
 }
 
 
-impl Display for Model {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}::{}", self.protocol, self.model_name)
+impl fmt::Display for Model {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Protocol: {}, Model Name: {}", self.protocol, self.model_name)
     }
 }
 
@@ -42,7 +42,6 @@ impl Model {
     pub(crate) fn chat_adaptor(&self) -> Box<dyn ChatTrait> {
         match self.protocol.as_str() {
             "ollama" => Box::new(adaptors::ollama::OllamaChat::new(self.model_name.clone())),
-            "embedded" => Box::new(adaptors::embedded::EmbeddedChat::new(self.model_name.clone())),
             _ => Box::new(adaptors::openai::OpenAIGPTChat::new(self.model_name.clone()))
         }
     }

@@ -14,7 +14,6 @@ name = "genie"
 path = "src/main.rs"
 
 [dependencies]
-orca = { git = "https://github.com/scrippt-tech/orca", package = "orca-core" }
 ollama-rs = "0.1.5"
 hyper = { version = "0.14", features = ["full"] }
 include_dir = "0.7.3"

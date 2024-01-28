@@ -1,4 +1,3 @@
-pub(crate) mod embedded;
 pub(crate) mod shell;
 pub(crate) mod code;
 pub(crate) mod images;

@@ -26,6 +26,12 @@ impl OllamaChat {
     }
 }
 
+impl std::fmt::Display for OllamaChat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}::{}", "ollama", self.model)
+    }
+}
+
 #[async_trait]
 impl ChatTrait for OllamaChat {
     async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>> {

@@ -1,6 +1,6 @@
 use crate::actions::Action;
-use crate::errors::GenieError;
 use crate::adaptors::ChatTrait;
+use crate::errors::GenieError;
 
 pub(crate) struct ListModelsCommand {
     adaptor: Box<dyn ChatTrait>,

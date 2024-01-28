@@ -1,8 +1,9 @@
 use std::error::Error;
+use std::fmt;
+
 use async_trait::async_trait;
 
 pub(crate) mod ollama;
-pub(crate) mod embedded;
 pub(crate) mod openai;
 
 #[async_trait]
