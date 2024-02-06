@@ -20,7 +20,7 @@ impl<'a> ShellCommand {
 }
 
 impl Action for ShellCommand {
-    fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+    fn exec(&self, user_prompt: String) -> Result<(), Box<dyn Error>> {
         println!("command");
 
         let future = async {

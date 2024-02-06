@@ -1,6 +1,5 @@
 use std::error::Error;
 use std::fmt;
-use std::fmt::Display;
 
 use crate::adaptors;
 use crate::adaptors::ChatTrait;
