@@ -14,29 +14,29 @@ name = "genie"
 path = "src/main.rs"
 
 [dependencies]
-ollama-rs = "0.1.5"
-hyper = { version = "0.14", features = ["full"] }
+ollama-rs = "0.1.6"
+hyper = { version = "1.1.0", features = ["full"] }
 include_dir = "0.7.3"
 os_info = "3.7.0"
 atty = "0.2.14"
-serde = { version = "1.0.68", features = ["derive"] }
-serde_json = "1.0.68"
-tokio = { version = "1.28.2", features = ["full"] }
-futures = { version = "0.3.28" }
-clap = { version = "4.3.8", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
+serde_json = "1.0.113"
+tokio = { version = "1.36.0", features = ["full"] }
+futures = { version = "0.3.30" }
+clap = { version = "4.3.18", features = ["derive"] }
 reqwest = { version = "0.11", features = ["stream", "blocking", "json"] }
-tera = "1.19.0"
-termion = "2.0.1"
+tera = "1.19.1"
+termion = "3.0.0"
 mime_guess = { version = "2.0.4", features = [] }
-tokio-tungstenite = "0.20.1"
-async-openai = "0.16.0"
+tokio-tungstenite = "0.21.0"
+async-openai = "0.18.3"
 log = "0.4.20"
-env_logger = "0.10.0"
-anyhow = "1.0.75"
-async-trait = "0.1.74"
-axum = "0.7.3"
+env_logger = "0.11.1"
+anyhow = "1.0.79"
+async-trait = "0.1.77"
+axum = "0.7.4"
 tower = "0.4.13"
 mime = "0.3.17"
 http-body-util = "0.1.0"
-tempfile = "3.9.0"
+tempfile = "3.10.0"
 walkdir = "2.4.0"
