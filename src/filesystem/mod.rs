@@ -40,52 +40,12 @@ impl FileSystemContext<'_> {
     }
 }
 
-fn path_to_string(root: &Path, path: &Path, is_dir: bool) -> String {
-    if path == root {
-        return format!("/{}/", root.file_name().unwrap().to_string_lossy());
-    }
-
-    let components = path.components()
-        .skip(root.components().count())
-        .map(|c| c.as_os_str().to_string_lossy())
-        .collect::<Vec<_>>();
-
-    if components.is_empty() {
-        return String::new();
-    }
-
-    let mut result = String::from("    ");
-    for (i, component) in components.iter().enumerate() {
-        if i != components.len() - 1 {
-            result.push_str("    ");
-        } else {
-            if is_dir {
-                result.push_str("/");
-            }
-            result.push_str(component);
-            if is_dir {
-                result.push_str("/");
-            }
-        }
-    }
-    result
-}
 
 #[cfg(test)]
 mod tests {
     use tempfile::TempDir;
 
     use super::*;
-
-    #[test]
-    fn test_path_to_string() {
-        let root = Path::new("/root");
-
-        assert_eq!(path_to_string(root, root, true), "/root/");
-        assert_eq!(path_to_string(root, Path::new("/root/file.txt"), false), "    file.txt");
-        assert_eq!(path_to_string(root, Path::new("/root/src/"), true), "    /src/");
-        assert_eq!(path_to_string(root, Path::new("/root/src/main.py"), false), "        main.py");
-    }
 
     #[test]
     fn test_walk_dir() {
