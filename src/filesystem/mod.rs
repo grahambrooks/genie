@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use walkdir::WalkDir;
 
@@ -13,16 +13,34 @@ impl FileSystemContext<'_> {
         FileSystemContext { root }
     }
 
-    pub fn context(&self) -> Vec<PathBuf> {
-        WalkDir::new(self.root)
-            .into_iter()
-            .filter_map(|e| e.ok())
-            .map(|e| e.path().to_path_buf())
-            .collect()
+    pub fn context(&self) -> String {
+        if !self.root.exists() {
+            return String::new();
+        }
+        let root_path = self.root;
+        let mut result = String::new();
+        result.push_str("/");
+        result.push_str(root_path.components().last().unwrap().as_os_str().to_str().unwrap());
+        // let root_depth = root_path.components().count();
+
+        for entry in WalkDir::new(root_path).into_iter().filter_map(|e| e.ok()) {
+            let depth = entry.depth();// - root_depth;
+            let indent = "    ".repeat(depth);
+            let path = entry.path();
+            let display_name = path.strip_prefix(root_path).unwrap_or(path).to_str().unwrap();
+
+            if entry.file_type().is_dir() {
+                result.push_str(&format!("{}{}/\n", indent, display_name));
+            } else {
+                result.push_str(&format!("{}{}\n", indent, display_name));
+            }
+        }
+
+        result
     }
 }
 
-fn path_to_string(root: &Path, path: &Path, isDir: bool) -> String {
+fn path_to_string(root: &Path, path: &Path, is_dir: bool) -> String {
     if path == root {
         return format!("/{}/", root.file_name().unwrap().to_string_lossy());
     }
@@ -41,11 +59,11 @@ fn path_to_string(root: &Path, path: &Path, isDir: bool) -> String {
         if i != components.len() - 1 {
             result.push_str("    ");
         } else {
-            if isDir {
+            if is_dir {
                 result.push_str("/");
             }
             result.push_str(component);
-            if isDir {
+            if is_dir {
                 result.push_str("/");
             }
         }
@@ -83,37 +101,48 @@ mod tests {
     }
 
     #[test]
-    fn test_walk_dir_not_dir() {
-        let paths = FileSystemContext::new(Path::new("Cargo.toml")).context();
-        assert_eq!(paths.len(), 1);
-    }
-
-    #[test]
-    fn test_walk_dir_nested() {
+    fn test_walk_dir_nested_dir() {
+        let structure = "/root_directory/
+    requirements.txt
+    tests/
+        tests/test_helper.py
+        tests/test_main.py
+    docs/
+        docs/README.md
+        docs/CONTRIBUTING.md
+    src/
+        src/helper.py
+        src/main.py
+";
         let temp_dir = TempDir::new().unwrap();
         let temp_dir_path = temp_dir.path();
-        let temp_file_path = temp_dir_path.join("temp_file");
-        fs::File::create(&temp_file_path).unwrap();
+        let root_directory = temp_dir_path.join("root_directory");
+        fs::create_dir(&root_directory).unwrap();
+        let src = root_directory.join("src");
+        fs::create_dir(&src).unwrap();
+        let main_py = src.join("main.py");
+        fs::File::create(&main_py).unwrap();
+        let helper_py = src.join("helper.py");
+        fs::File::create(&helper_py).unwrap();
+        let docs = root_directory.join("docs");
+        fs::create_dir(&docs).unwrap();
+        let readme_md = docs.join("README.md");
+        fs::File::create(&readme_md).unwrap();
+        let contributing_md = docs.join("CONTRIBUTING.md");
+        fs::File::create(&contributing_md).unwrap();
+        let tests = root_directory.join("tests");
+        fs::create_dir(&tests).unwrap();
+        let test_main_py = tests.join("test_main.py");
+        fs::File::create(&test_main_py).unwrap();
+        let test_helper_py = tests.join("test_helper.py");
+        fs::File::create(&test_helper_py).unwrap();
+        let requirements_txt = root_directory.join("requirements.txt");
+        fs::File::create(&requirements_txt).unwrap();
 
-        let paths = FileSystemContext::new(&temp_dir_path).context();
+        let paths = FileSystemContext::new(&root_directory).context();
 
-        assert_eq!(paths.len(), 2);
-    }
+        println!("{}", paths);
 
-    #[test]
-    fn test_walk_dir_nested_dir() {
-        let structure = "
-/root_directory/
-    /src/                 # Source files
-        main.py           # Main application script
-        helper.py         # Helper functions
-    /docs/                # Documentation files
-        README.md
-        CONTRIBUTING.md
-    /tests/               # Test scripts
-        test_main.py
-        test_helper.py
-    requirements.txt      # Project dependencies
-";
+        assert_eq!(paths, structure);
     }
 }
