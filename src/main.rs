@@ -21,6 +21,7 @@ mod model;
 mod actions;
 mod adaptors;
 mod errors;
+mod filesystem;
 
 #[derive(Parser, Debug)]
 #[command(
