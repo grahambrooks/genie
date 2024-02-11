@@ -1,12 +1,12 @@
 use crate::actions::Action;
-use crate::adaptors::ChatTrait;
+use crate::adapters::Adapter;
 use crate::errors::GenieError;
 use crate::server;
 
 pub(crate) struct ServerCommand {}
 
 impl ServerCommand {
-    pub fn new(_adaptor: Box<dyn ChatTrait>) -> Self {
+    pub fn new(_adapter: Box<dyn Adapter>) -> Self {
         ServerCommand {}
     }
 }

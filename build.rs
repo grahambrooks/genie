@@ -3,7 +3,7 @@ use std::env;
 
 fn main() {
     let git_sha = Command::new("git")
-        .args(&["rev-parse", "--short", "HEAD"])
+        .args(["rev-parse", "--short", "HEAD"])
         .output()
         .expect("Failed to execute git command")
         .stdout;

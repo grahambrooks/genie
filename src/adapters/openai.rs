@@ -5,7 +5,7 @@ use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatComple
 use async_trait::async_trait;
 
 use crate::{expand_template, images, read_stdin};
-use crate::adaptors::ChatTrait;
+use crate::adapters::Adapter;
 use crate::errors::GenieError;
 use crate::messages::CODE_TEMPLATE;
 
@@ -23,12 +23,16 @@ impl OpenAIGPTChat {
 
 impl std::fmt::Display for OpenAIGPTChat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}::{}", "openai", self.model)
+        write!(f, "openai::{}", self.model)
     }
 }
 
 #[async_trait]
-impl ChatTrait for OpenAIGPTChat {
+impl Adapter for OpenAIGPTChat {
+    async fn call(&self, _prompt: String) -> Result<String, Box<dyn Error>> {
+        todo!()
+    }
+
     async fn prompt(&self, user_prompt: String) -> Result<(), Box<dyn Error>> {
         if user_prompt.is_empty() {
             return Err(Box::new(GenieError::new("Prompt cannot be empty")));

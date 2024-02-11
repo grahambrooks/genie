@@ -1,21 +1,18 @@
 use std::error::Error;
 
 use crate::actions::Action;
-use crate::adaptors::ChatTrait;
+use crate::adapters::Adapter;
 use crate::errors::GenieError;
 use crate::model::ShellExecutor;
 
 pub(crate) struct ShellCommand {
-    // adaptor: &'a dyn ChatTrait,
-    adaptor: Box<dyn ChatTrait>,
+    // adapter: &'a dyn ChatTrait,
+    adapter: Box<dyn Adapter>,
 }
 
-impl<'a> ShellCommand {
-    // pub fn new(adaptor: &'a dyn ChatTrait) -> Self {
-    //     ShellCommand { adaptor }
-    // }
-    pub fn new(adaptor: Box<dyn ChatTrait>) -> Self {
-        ShellCommand { adaptor: adaptor }
+impl ShellCommand {
+    pub fn new(adapter: Box<dyn Adapter>) -> Self {
+        ShellCommand { adapter }
     }
 }
 
@@ -24,8 +21,7 @@ impl Action for ShellCommand {
         println!("command");
 
         let future = async {
-            // let executor = Box::new(BashExecutor {});
-            match self.adaptor.shell(user_prompt).await {
+            match self.adapter.shell(user_prompt).await {
                 Ok(_) => Ok(()),
                 Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
             }

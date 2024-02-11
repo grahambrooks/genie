@@ -7,6 +7,8 @@ use std::io::Read;
 
 use clap::Parser;
 
+use run::RunCommand;
+
 use crate::model::Model;
 
 pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
@@ -19,9 +21,10 @@ mod web_socket;
 mod images;
 mod model;
 mod actions;
-mod adaptors;
+mod adapters;
 mod errors;
 mod filesystem;
+mod run;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -41,10 +44,7 @@ long_about = r#"Shell for AI assisted development.
 "#
 )]
 struct Args {
-    #[arg(
-    long,
-    help = "generate a command line give the prompt and the option to run the command"
-    )]
+    #[arg(long, help = "generate a command line give the prompt and the option to run the command")]
     command: bool,
     #[arg(long, help = "generate source code in response to the prompt")]
     code: bool,
@@ -56,6 +56,8 @@ struct Args {
     server: bool,
     #[arg(long, help = "the model. e.g. openai::gpt-4, ollama::mistral to use", default_value = "openai::gpt-3.5-turbo")]
     model: String,
+    #[arg(long, help = "Run a genie script")]
+    run: String,
     prompt: Vec<String>,
 }
 
@@ -69,41 +71,50 @@ async fn main() {
     let mut user_prompt = args.prompt.join(" ").to_string();
     user_prompt.push_str(read_stdin().as_str());
 
-    let cmd = parse_command_from_args(args);
-
-    match cmd.exec(user_prompt) {
-        Ok(_) => (),
+    match parse_command_from_args(args) {
+        Ok(cmd) => {
+            match cmd.exec(user_prompt) {
+                Ok(_) => (),
+                Err(e) => {
+                    println!("Error: {}", e);
+                    return;
+                }
+            };
+        }
         Err(e) => {
             println!("Error: {}", e);
             return;
         }
-    };
+    }
 }
 
-fn parse_command_from_args(args: Args) -> Box<dyn actions::Action> {
-    let adaptor = Model::from_string(args.model.as_str()).chat_adaptor();
+fn parse_command_from_args(args: Args) -> Result<Box<dyn actions::Action>, Box<dyn std::error::Error>> {
+    if !args.run.is_empty() {
+        return Ok(Box::new(RunCommand::new(args.run)));
+    }
 
+    let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
     if args.command {
-        return Box::new(actions::shell::ShellCommand::new(adaptor));
+        return Ok(Box::new(actions::shell::ShellCommand::new(adapter)));
     }
 
     if args.code {
-        return Box::new(actions::code::GenerateCodeCommand::new(adaptor));
+        return Ok(Box::new(actions::code::GenerateCodeCommand::new(adapter)));
     }
 
     if args.image {
-        return Box::new(actions::images::GenerateImagesCommand::new(adaptor));
+        return Ok(Box::new(actions::images::GenerateImagesCommand::new(adapter)));
     }
 
     if args.server {
-        return Box::new(actions::server::ServerCommand::new(adaptor));
+        return Ok(Box::new(actions::server::ServerCommand::new(adapter)));
     }
 
     if args.list_models {
-        return Box::new(actions::list_models::ListModelsCommand::new(adaptor));
+        return Ok(Box::new(actions::list_models::ListModelsCommand::new(adapter)));
     }
 
-    Box::new(actions::chat::ChatCommand::new(adaptor))
+    Ok(Box::new(actions::chat::ChatCommand::new(adapter)))
 }
 
 fn expand_template(prompt: String, template: &messages::template::Template) -> String {

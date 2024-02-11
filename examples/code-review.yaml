@@ -1,0 +1,22 @@
+task:
+  template: |
+    As a senior software engineer please evaluate the following code and provide feedback on how to improve it.
+    Your recommendations should be in markdown format and include a title that includes the name of the file being reviewed.
+
+    Please consider the following but only include the ones that are relevant to the code:
+    * Code Readability
+    * Code Maintainability including idiomatic naming and style
+    * Code Performance
+    * Code Security
+
+    {file.name}
+    ```{file.type}
+    {file.content}
+    ```
+  model: 'ollama::mistral:latest'
+  source:
+    type: Filesystem
+    path: "src/**/*.rs"
+  sink:
+    type: Filesystem
+    path: "{file.path}/{file.name}.md"

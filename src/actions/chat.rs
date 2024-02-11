@@ -1,14 +1,14 @@
 use crate::actions::Action;
-use crate::adaptors::ChatTrait;
+use crate::adapters::Adapter;
 
 pub(crate) struct ChatCommand {
-    adaptor: Box<dyn ChatTrait>,
+    adapter: Box<dyn Adapter>,
 }
 
 impl ChatCommand {
-    pub fn new(adaptor: Box<dyn ChatTrait>) -> Self {
+    pub fn new(adapter: Box<dyn Adapter>) -> Self {
         ChatCommand {
-            adaptor
+            adapter
         }
     }
 }
@@ -17,7 +17,7 @@ impl ChatCommand {
 impl Action for ChatCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         let future = async {
-            self.adaptor.prompt(user_prompt).await
+            self.adapter.prompt(user_prompt).await
         };
 
         futures::executor::block_on(future)

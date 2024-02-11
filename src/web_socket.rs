@@ -26,24 +26,6 @@ impl Request {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_request_construction() {
-        let request = Request::new("do", "it");
-        assert_eq!("do", request.command);
-        assert_eq!("it", request.message);
-    }
-
-    #[test]
-    fn test_serialization() {
-        let request = Request::new("do", "it");
-        let serialized = serde_json::to_string(&request).unwrap();
-        assert_eq!(serialized, "{\"command\":\"do\",\"message\":\"it\"}");
-    }
-}
 
 #[allow(dead_code)]
 async fn handle_connection(stream: WsTcpStream) {
@@ -74,6 +56,7 @@ async fn handle_connection(stream: WsTcpStream) {
 
     println!("Connection closed");
 }
+
 #[allow(dead_code)]
 async fn start() -> Result<(), Box<dyn Error>> {
     let server = TcpListener::bind("127.0.0.1:8080").await?;
@@ -91,4 +74,23 @@ async fn start() -> Result<(), Box<dyn Error>> {
         });
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_request_construction() {
+        let request = Request::new("do", "it");
+        assert_eq!("do", request.command);
+        assert_eq!("it", request.message);
+    }
+
+    #[test]
+    fn test_serialization() {
+        let request = Request::new("do", "it");
+        let serialized = serde_json::to_string(&request).unwrap();
+        assert_eq!(serialized, "{\"command\":\"do\",\"message\":\"it\"}");
+    }
 }

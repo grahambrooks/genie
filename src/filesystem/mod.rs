@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::Path;
 
 use walkdir::WalkDir;
@@ -18,7 +17,7 @@ impl FileSystemContext<'_> {
         }
         let root_path = self.root;
         let mut result = String::new();
-        result.push_str("/");
+        result.push('/');
         result.push_str(root_path.components().last().unwrap().as_os_str().to_str().unwrap());
         // let root_depth = root_path.components().count();
 
@@ -42,6 +41,7 @@ impl FileSystemContext<'_> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
     use tempfile::TempDir;
 
     use super::*;
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn test_walk_dir() {
         let paths = FileSystemContext::new(Path::new(".")).context();
-        assert!(paths.len() > 0);
+        assert!(!paths.is_empty());
     }
 
     #[test]
@@ -80,28 +80,25 @@ mod tests {
         let src = root_directory.join("src");
         fs::create_dir(&src).unwrap();
         let main_py = src.join("main.py");
-        fs::File::create(&main_py).unwrap();
+        fs::File::create(main_py).unwrap();
         let helper_py = src.join("helper.py");
-        fs::File::create(&helper_py).unwrap();
+        fs::File::create(helper_py).unwrap();
         let docs = root_directory.join("docs");
         fs::create_dir(&docs).unwrap();
         let readme_md = docs.join("README.md");
-        fs::File::create(&readme_md).unwrap();
+        fs::File::create(readme_md).unwrap();
         let contributing_md = docs.join("CONTRIBUTING.md");
-        fs::File::create(&contributing_md).unwrap();
+        fs::File::create(contributing_md).unwrap();
         let tests = root_directory.join("tests");
         fs::create_dir(&tests).unwrap();
         let test_main_py = tests.join("test_main.py");
-        fs::File::create(&test_main_py).unwrap();
+        fs::File::create(test_main_py).unwrap();
         let test_helper_py = tests.join("test_helper.py");
-        fs::File::create(&test_helper_py).unwrap();
+        fs::File::create(test_helper_py).unwrap();
         let requirements_txt = root_directory.join("requirements.txt");
-        fs::File::create(&requirements_txt).unwrap();
+        fs::File::create(requirements_txt).unwrap();
 
         let paths = FileSystemContext::new(&root_directory).context();
-
-        println!("{}", paths);
-
         assert_eq!(paths, structure);
     }
 }

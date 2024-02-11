@@ -15,7 +15,7 @@ pub(crate) struct Generator {
 }
 
 pub(crate) fn generator(client: Client<OpenAIConfig>) -> Generator {
-    Generator { client: client, count: IMAGE_COUNT, size: IMAGE_SIZE, path: SAVE_PATH }
+    Generator { client, count: IMAGE_COUNT, size: IMAGE_SIZE, path: SAVE_PATH }
 }
 
 impl Generator {
@@ -67,7 +67,7 @@ mod test {
 
         let mut gen = generator(connection);
         let foo = gen.count(100).path("/foo").size(ImageSize::S512x512);
-        validate_generator(&foo, 100, "/foo", ImageSize::S512x512);
+        validate_generator(foo, 100, "/foo", ImageSize::S512x512);
     }
 
     fn validate_generator(gen: &Generator, count: u8, path: &str, size: ImageSize) {

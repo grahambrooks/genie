@@ -1,14 +1,14 @@
 use crate::actions::Action;
-use crate::adaptors::ChatTrait;
+use crate::adapters::Adapter;
 
 pub(crate) struct GenerateImagesCommand {
-    adaptor: Box<dyn ChatTrait>,
+    adapter: Box<dyn Adapter>,
 }
 
 impl GenerateImagesCommand {
-    pub fn new(adaptor: Box<dyn ChatTrait>) -> Self {
+    pub fn new(adapter: Box<dyn Adapter>) -> Self {
         GenerateImagesCommand {
-            adaptor
+            adapter
         }
     }
 }
@@ -17,7 +17,7 @@ impl Action for GenerateImagesCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
         println!("image");
         futures::executor::block_on(async {
-            self.adaptor.generate_images(user_prompt).await
+            self.adapter.generate_images(user_prompt).await
         })
     }
 }

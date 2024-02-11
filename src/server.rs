@@ -29,21 +29,29 @@ async fn get_chats(_request: Request) -> Json<Value> {
 }
 
 async fn put_chat(_request: Request) -> impl IntoResponse {
+    log::info!("Received a request to put a chat");
+    println!("Received a request to put a chat {}", _request.uri());
     let data = serde_json::json!({ "chat": {} });
     (StatusCode::CREATED, Json(data))
 }
 
 async fn fallback(uri: Uri) -> Response {
+    log::info!("Received a request for {}", uri);
     let filename = static_path(uri.path().to_string());
     let content_type = mime_guess::from_path(filename.clone()).first_or_octet_stream();
-    let file = ASSETS.get_file(filename).unwrap();
-    // Create and return a response with an appropriate content type
-    // and the file contents as the body.
-    Response::builder()
-        .status(StatusCode::OK)
-        .header(http::header::CONTENT_TYPE, content_type.as_ref())
-        .body(Body::from(file.contents()))
-        .unwrap()
+
+    match ASSETS.get_file(filename) {
+        Some(file) => Response::builder()
+            .status(StatusCode::OK)
+            .header(http::header::CONTENT_TYPE, content_type.as_ref())
+            .body(Body::from(file.contents()))
+            .unwrap()
+        ,
+        None => Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(Body::from("Not Found"))
+            .unwrap()
+    }
 }
 
 fn static_path(original_path: String) -> String {
@@ -51,7 +59,7 @@ fn static_path(original_path: String) -> String {
         return "index.html".to_string();
     }
 
-    if original_path.starts_with("/") {
+    if original_path.starts_with('/') {
         return original_path[1..].to_string();
     }
     original_path.to_string()
@@ -64,6 +72,7 @@ mod tests {
         ,
         http::{self, Request, StatusCode},
     };
+    use axum::http::Method;
     use http_body_util::BodyExt;
     // for `collect`
     use serde_json::{json, Value};
@@ -101,19 +110,7 @@ mod tests {
     async fn get_chats() {
         let app = app();
 
-        let response = app
-            .oneshot(
-                Request::builder()
-                    .method(http::Method::GET)
-                    .uri("/api/chats")
-                    .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                    .body(Body::from(
-                        serde_json::to_vec(&json!([1, 2, 3, 4])).unwrap(),
-                    ))
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
+        let response = call_chat_api(app, Method::GET).await;
 
         assert_eq!(response.status(), StatusCode::OK);
 
@@ -122,14 +119,25 @@ mod tests {
         assert_eq!(body, json!({"chats":[]}));
     }
 
+
     #[tokio::test]
     async fn put_chat() {
         let app = app();
 
-        let response = app
+        let response = call_chat_api(app, Method::PUT).await;
+
+        assert_eq!(response.status(), StatusCode::CREATED);
+
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(body, json!({"chat":{}}));
+    }
+
+    async fn call_chat_api(app: Router, method: Method) -> Response {
+        app
             .oneshot(
                 Request::builder()
-                    .method(http::Method::PUT)
+                    .method(method)
                     .uri("/api/chats")
                     .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                     .body(Body::from(
@@ -138,12 +146,6 @@ mod tests {
                     .unwrap(),
             )
             .await
-            .unwrap();
-
-        assert_eq!(response.status(), StatusCode::CREATED);
-
-        let body = response.into_body().collect().await.unwrap().to_bytes();
-        let body: Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(body, json!({"chat":{}}));
+            .unwrap()
     }
 }

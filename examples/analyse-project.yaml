@@ -1,0 +1,19 @@
+task:
+  template: |
+    As a senior software engineer please evaluate the following project structure  and provide feedback on how to improve it.
+    Your recommendations should be in markdown format and include a title that includes the path of the directory being analyzed.
+
+    Please consider the following but only include the ones that are relevant to the code:
+    * idiomatic project structure based on it's content
+
+    {project.path}
+    ```
+    {project.context}
+    ```
+  model: 'ollama::mistral::latest'
+  source:
+    type: Project
+    path: "src"
+  sink:
+    type: Project
+    file: "{project.path}/recommendations.md"

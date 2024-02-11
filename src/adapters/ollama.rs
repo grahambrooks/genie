@@ -9,10 +9,10 @@ use ollama_rs::Ollama;
 use termion::event::Key;
 use termion::input::TermRead;
 
+use crate::adapters::Adapter;
 use crate::errors::GenieError;
 use crate::expand_template;
 use crate::messages::{CODE_TEMPLATE, DEFAULT_TEMPLATE, SHELL_TEMPLATE};
-use crate::adaptors::ChatTrait;
 
 pub(crate) struct OllamaChat {
     model: String,
@@ -28,12 +28,25 @@ impl OllamaChat {
 
 impl std::fmt::Display for OllamaChat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}::{}", "ollama", self.model)
+        write!(f, "ollama::{}", self.model)
     }
 }
 
 #[async_trait]
-impl ChatTrait for OllamaChat {
+impl Adapter for OllamaChat {
+    async fn call(&self, prompt: String) -> Result<String, Box<dyn Error>> {
+        if prompt.is_empty() {
+            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+        }
+        let messages = expand_template(prompt, &DEFAULT_TEMPLATE);
+        let connection = Ollama::new("http://localhost".to_string(), 11434);
+        let model = self.model.to_string();
+        let res = connection.generate(GenerationRequest::new(model, messages)).await;
+        match res {
+            Ok(response) => Ok(response.response),
+            Err(e) => return Err(Box::new(GenieError::new(&format!("Error calling Ollama: {}", e)))),
+        }
+    }
     async fn prompt(&self, prompt: String) -> Result<(), Box<dyn Error>> {
         if prompt.is_empty() {
             return Err(Box::new(GenieError::new("Prompt cannot be empty")));
@@ -52,8 +65,8 @@ impl ChatTrait for OllamaChat {
         if prompt.is_empty() {
             return Err(Box::new(GenieError::new("Prompt cannot be empty")));
         }
-        
-        
+
+
         let connection = Ollama::new("http://localhost".to_string(), 11434);
         let model = self.model.to_string();
         let messages = expand_template(prompt, &CODE_TEMPLATE);
