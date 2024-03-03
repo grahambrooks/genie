@@ -16,7 +16,6 @@ pub const GPT_4_0: &str = "gpt-4-1106-preview";
 
 mod messages;
 mod context;
-mod images;
 mod model;
 mod actions;
 mod adapters;
@@ -24,11 +23,14 @@ mod errors;
 mod filesystem;
 mod run;
 
+// Buiild a version string based on the version in Cargo.toml and the git commit hash
+static VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), ".", include_str!(concat!(env!("OUT_DIR"), "/version.txt")));
+
 #[derive(Parser, Debug)]
 #[command(
 color = clap::ColorChoice::Auto,
 author = "Graham Brooks",
-version,
+version = VERSION,
 about = "Shell for AI assisted development",
 long_about = r#"Shell for AI assisted development.
 
@@ -46,8 +48,8 @@ struct Args {
     command: bool,
     #[arg(long, help = "generate source code in response to the prompt")]
     code: bool,
-    #[arg(long, help = "generate images based on the prompt")]
-    image: bool,
+    #[arg(long, help = "generate images based on the prompt to the given directory")]
+    image: Option<String>,
     #[arg(long, help = "List the available OpenAi models")]
     list_models: bool,
     #[arg(long, help = "the model. e.g. openai::gpt-4, ollama::mistral to use", default_value = "openai::gpt-3.5-turbo")]
@@ -99,9 +101,9 @@ fn parse_command_from_args(args: Args) -> Result<Box<dyn actions::Action>, Box<d
         return Ok(Box::new(actions::code::GenerateCodeCommand::new(adapter)));
     }
 
-    if args.image {
+    if args.image.is_some() {
         let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
-        return Ok(Box::new(actions::images::GenerateImagesCommand::new(adapter)));
+        return Ok(Box::new(actions::images::GenerateImagesCommand::new(adapter, args.image.unwrap())));
     }
 
     if args.list_models {

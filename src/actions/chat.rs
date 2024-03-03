@@ -1,5 +1,8 @@
 use crate::actions::Action;
 use crate::adapters::Adapter;
+use crate::errors::GenieError;
+use crate::expand_template;
+use crate::messages::DEFAULT_TEMPLATE;
 
 pub(crate) struct ChatCommand {
     adapter: Box<dyn Adapter>,
@@ -16,10 +19,18 @@ impl ChatCommand {
 
 impl Action for ChatCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+        let messages = expand_template(user_prompt, &DEFAULT_TEMPLATE);
+
         let future = async {
-            self.adapter.prompt(user_prompt).await
+            match self.adapter.generate(messages).await {
+                Ok(response) => {
+                    println!("{}", response);
+                    Ok(())
+                }
+                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
+            }
         };
 
-        futures::executor::block_on(future)
+        Ok(futures::executor::block_on(future)?)
     }
 }

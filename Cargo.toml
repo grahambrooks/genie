@@ -1,6 +1,6 @@
 [package]
 name = "genie"
-version = "0.0.4"
+version = "0.1.0"
 build = "build.rs"
 edition = "2021"
 authors = ["Graham Brooks<graham@grahambrooks.com>"]

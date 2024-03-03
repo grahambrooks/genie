@@ -39,7 +39,7 @@ impl Action for RunCommand {
             let prompt = template::expand_template(script.task.template.as_ref().unwrap().clone(), item.to_string());
 
             let future = async {
-                match adapter.call(prompt).await {
+                match adapter.generate(prompt).await {
                     Ok(response_) => {
                         match script.task.sink.write(item.to_string(), response_) {
                             Ok(_) => Ok(()),

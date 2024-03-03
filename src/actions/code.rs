@@ -1,5 +1,8 @@
 use crate::actions::Action;
 use crate::adapters::Adapter;
+use crate::errors::GenieError;
+use crate::expand_template;
+use crate::messages::CODE_TEMPLATE;
 
 pub(crate) struct GenerateCodeCommand {
     adapter: Box<dyn Adapter>,
@@ -13,9 +16,18 @@ impl GenerateCodeCommand {
 
 impl Action for GenerateCodeCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
-        println!("code");
-        futures::executor::block_on(async {
-            self.adapter.generate_code(user_prompt).await
-        })
+        let messages = expand_template(user_prompt, &CODE_TEMPLATE);
+
+        let future = async {
+            match self.adapter.generate(messages).await {
+                Ok(response) => {
+                    println!("{}", response);
+                    Ok(())
+                }
+                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
+            }
+        };
+
+        Ok(futures::executor::block_on(future)?)
     }
 }
