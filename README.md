@@ -64,11 +64,16 @@ The following summarizes changes and commits those changes.
 ```bash
 git diff | genie Summarize changes as a git commit message. | git commit -a -F -
 ```
+OR
+
+```bash
+git diff | genie --model ollama::mistral  Summarize changes as a git commit message. | git commit -a -F -
+```
 
 Which is a little long-winded, so you can create an alias in your shell.
 
 ```bash
-alias dscommit="git diff | genie Summarize changes as a git commit message. | git commit -a -F -"
+alias gcommit="git diff | genie --model ollama::mistral Summarize changes as a git commit message. | git commit -a -F -"
 ```
 ## Repository maintenance
 
