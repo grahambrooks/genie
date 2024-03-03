@@ -56,23 +56,6 @@ cargo build --release
 
 add the binary `target/release/genie` to your path or copy to a directory that is already on your path.
 
-### Building the web assets
-
-The web application css uses tailwindcss and is built/rebuilt using npx:
-
-```bash
-npx tailwindcss -i ./static/input.css -o ./static/site.css --watch
-```
-
-## Use-cases
-
-### Running as a local web appliction
-
-```bash
-genie --server
-```
-This starts the app as a local web server available on http://localhost:3000
-
 
 ### Summarize for a git commit 
 

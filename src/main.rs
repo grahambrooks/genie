@@ -48,7 +48,7 @@ struct Args {
     code: bool,
     #[arg(long, help = "generate images based on the prompt")]
     image: bool,
-    #[arg(long, help = "List the available models")]
+    #[arg(long, help = "List the available OpenAi models")]
     list_models: bool,
     #[arg(long, help = "the model. e.g. openai::gpt-4, ollama::mistral to use", default_value = "openai::gpt-3.5-turbo")]
     model: String,
