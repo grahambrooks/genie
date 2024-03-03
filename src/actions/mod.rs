@@ -1,7 +1,6 @@
 pub(crate) mod shell;
 pub(crate) mod code;
 pub(crate) mod images;
-pub(crate) mod server;
 pub(crate) mod list_models;
 pub(crate) mod chat;
 

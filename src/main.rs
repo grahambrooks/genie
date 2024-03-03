@@ -16,8 +16,6 @@ pub const GPT_4_0: &str = "gpt-4-1106-preview";
 
 mod messages;
 mod context;
-mod server;
-mod web_socket;
 mod images;
 mod model;
 mod actions;
@@ -52,12 +50,10 @@ struct Args {
     image: bool,
     #[arg(long, help = "List the available models")]
     list_models: bool,
-    #[arg(long, help = "Run as a web server")]
-    server: bool,
     #[arg(long, help = "the model. e.g. openai::gpt-4, ollama::mistral to use", default_value = "openai::gpt-3.5-turbo")]
     model: String,
     #[arg(long, help = "Run a genie script")]
-    run: String,
+    run: Option<String>,
     prompt: Vec<String>,
 }
 
@@ -89,31 +85,31 @@ async fn main() {
 }
 
 fn parse_command_from_args(args: Args) -> Result<Box<dyn actions::Action>, Box<dyn std::error::Error>> {
-    if !args.run.is_empty() {
-        return Ok(Box::new(RunCommand::new(args.run)));
+    if args.run.is_some() {
+        return Ok(Box::new(RunCommand::new(args.run.unwrap())));
     }
 
-    let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
     if args.command {
+        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
         return Ok(Box::new(actions::shell::ShellCommand::new(adapter)));
     }
 
     if args.code {
+        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
         return Ok(Box::new(actions::code::GenerateCodeCommand::new(adapter)));
     }
 
     if args.image {
+        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
         return Ok(Box::new(actions::images::GenerateImagesCommand::new(adapter)));
     }
 
-    if args.server {
-        return Ok(Box::new(actions::server::ServerCommand::new(adapter)));
-    }
-
     if args.list_models {
+        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
         return Ok(Box::new(actions::list_models::ListModelsCommand::new(adapter)));
     }
 
+    let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
     Ok(Box::new(actions::chat::ChatCommand::new(adapter)))
 }
 
