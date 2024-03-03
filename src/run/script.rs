@@ -245,7 +245,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parses_project_anaysis() {
+    fn test_parses_project_analysis() {
         // language=yaml
         let script = r#"task:
   template: |
@@ -277,7 +277,7 @@ mod tests {
         }
         match result.task.sink {
             Sink::Filesystem { path } => {
-                panic!("Expected Sink::Project, got Sink::Filesysten with path {:?}", path);
+                panic!("Expected Sink::Project, got Sink::Filesystem with path {:?}", path);
             }
             Sink::Project { file } => {
                 assert_eq!(file.unwrap(), "{project.path}/recommendations.md");

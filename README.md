@@ -4,9 +4,15 @@
 
 ## Description
 
-This is a ChatGPT CLI application written in Rust. The application allows users to interact with the ChatGPT API for AI text generation within their terminal.
+This is a ChatGPT CLI application written in Rust.
+The application allows users to interact with the ChatGPT API for AI text generation within their terminal.
 
-If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a few. Many use interpreted languages and need your system to be setup to use the toolchain and dependencies. genie is written in rust. A key goal of the project is to make it super easy to install. Typiclly download a single binary and you're done. (except fo the small dependency on an OpenAI application key)
+If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a
+few.
+Many use interpreted languages and need your system to be setup to use the toolchain and dependencies.
+genie is written in rust.
+A key goal of the project is to make it super easy to install. Typically download a single binary and you're done. (
+except fo the small dependency on an OpenAI application key)
 
 As a cli the application can accept input from other tools.
 
@@ -24,7 +30,8 @@ git log HEAD~2 | genie Summarize as a release note
 
 - Rust stable https://www.rust-lang.org/tools/install or via rustup https://rustup.rs
 
-You will also need a ChatGPT API key. You can get one from https://openai.com and then set it as an environment variable.
+You will also need a ChatGPT API key. You can get one from https://openai.com and then set it as an environment
+variable.
 
 ```bash
 export OPENAI_API_KEY=<your key>
@@ -56,14 +63,14 @@ cargo build --release
 
 add the binary `target/release/genie` to your path or copy to a directory that is already on your path.
 
-
-### Summarize for a git commit 
+### Summarize for a git commit
 
 The following summarizes changes and commits those changes.
 
 ```bash
 git diff | genie Summarize changes as a git commit message. | git commit -a -F -
 ```
+
 OR
 
 ```bash
@@ -75,6 +82,7 @@ Which is a little long-winded, so you can create an alias in your shell.
 ```bash
 alias gcommit="git diff | genie --model ollama::mistral Summarize changes as a git commit message. | git commit -a -F -"
 ```
+
 ## Repository maintenance
 
 Currently, repository maintenance is manual and run semi regularly.
