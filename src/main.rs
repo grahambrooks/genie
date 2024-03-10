@@ -32,15 +32,16 @@ color = clap::ColorChoice::Auto,
 author = "Graham Brooks",
 version = VERSION,
 about = "Shell for AI assisted development",
-long_about = r#"Shell for AI assisted development.
+long_about = r#"
+CLI for AI assisted software development.
 
-    In default mode genie responds to prompts and exists.
+In default mode genie responds to prompts and exists.
 
-    In command mode genie generates a command line give the prompt and the option to run the command.
+In command mode genie generates a command line give the prompt and the option to run the command.
 
-    In code mode genie generates source code in response to the prompt.
+In code mode genie generates source code in response to the prompt.
 
-    genie needs an OPENAI_API_KEY environment variable set to a valid OpenAI API key.
+To use genie needs an OPENAI_API_KEY environment variable set to a valid OpenAI API key.
 "#
 )]
 struct Args {
@@ -74,14 +75,12 @@ async fn main() {
             match cmd.exec(user_prompt) {
                 Ok(_) => (),
                 Err(e) => {
-                    println!("Error: {}", e);
-                    return;
+                    println!("Error: {}\nUsage: genie --help", e);
                 }
             };
         }
         Err(e) => {
-            println!("Error: {}", e);
-            return;
+            println!("Error: {}", e)
         }
     }
 }

@@ -19,6 +19,10 @@ impl ChatCommand {
 
 impl Action for ChatCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+        if user_prompt.is_empty() {
+            return Err(Box::new(GenieError::new("No prompt provided")));
+        }
+
         let messages = expand_template(user_prompt, &DEFAULT_TEMPLATE);
 
         let future = async {

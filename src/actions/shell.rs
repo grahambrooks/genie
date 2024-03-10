@@ -26,6 +26,9 @@ impl ShellCommand {
 
 impl Action for ShellCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn Error>> {
+        if user_prompt.is_empty() {
+            return Err(Box::new(GenieError::new("No prompt provided")));
+        }
         let messages = expand_template(user_prompt, &SHELL_TEMPLATE);
         let future = async {
             match self.adapter.generate(messages).await {
