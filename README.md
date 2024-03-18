@@ -12,7 +12,7 @@ few.
 Many use interpreted languages and need your system to be setup to use the toolchain and dependencies.
 genie is written in rust.
 A key goal of the project is to make it super easy to install. Typically download a single binary and you're done. (
-except fo the small dependency on an OpenAI application key)
+except fo the small dependency on an OpenAI application key)    
 
 As a cli the application can accept input from other tools.
 
