@@ -1,4 +1,4 @@
-# genie a rust cli for interacting with ChatGPT
+# Genie a rust cli for interacting with ChatGPT
 
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 
@@ -12,9 +12,12 @@ few.
 Many use interpreted languages and need your system to be setup to use the toolchain and dependencies.
 genie is written in rust.
 A key goal of the project is to make it super easy to install. Typically download a single binary and you're done. (
-except fo the small dependency on an OpenAI application key)    
+except fo the small dependency on an OpenAI application key)
 
 As a cli the application can accept input from other tools.
+
+* [User Guide](doc/index.md)
+* [Script Examples](examples/README.md)
 
 ```bash
 git log HEAD~2 | genie Summarize as a release note
