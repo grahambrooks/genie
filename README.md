@@ -4,8 +4,12 @@
 
 ## Description
 
-This is a ChatGPT CLI application written in Rust.
-The application allows users to interact with the ChatGPT API for AI text generation within their terminal.
+Genie is a Large Language Model (LLM) based command line application written in Rust.
+
+Genie allows users to interact with the ChatGPT API, Ollama for AI operations. Genie can be built into larger scripted
+applications in the usual Unix way by piping input into the app and output into other apps.
+
+For more complex tasks Genie can run scripts written in yaml.
 
 If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a
 few.
