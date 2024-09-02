@@ -658,7 +658,7 @@ dependencies = [
 
 [[package]]
 name = "genie"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-openai",
  "async-trait",
@@ -1160,13 +1160,16 @@ dependencies = [
 
 [[package]]
 name = "ollama-rs"
-version = "0.1.9"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53581ab78176ff3ae830a43236f485fc90d7f472d0081dddc45d8605e1301954"
+checksum = "255252ec57e13d2d6ae074c7b7cd8c004d17dafb1e03f954ba2fd5cc226f8f49"
 dependencies = [
+ "async-trait",
+ "log",
  "reqwest",
  "serde",
  "serde_json",
+ "url",
 ]
 
 [[package]]

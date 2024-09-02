@@ -1,12 +1,13 @@
 [package]
 name = "genie"
-version = "0.1.0"
+version = "0.1.1"
 build = "build.rs"
 edition = "2021"
 authors = ["Graham Brooks<graham@grahambrooks.com>"]
-description = "A command line shell for using GenerativeAI tools in the command line"
+description = "A command line shell for using LLMs tools in the command line"
 readme = "README.md"
 repository = "https://github.com/grahambrooks/genie"
+homepage = "https://github.com/grahambrooks/genie"
 license = "MIT"
 
 [[bin]]
@@ -14,7 +15,7 @@ name = "genie"
 path = "src/main.rs"
 
 [dependencies]
-ollama-rs = "0.1.6"
+ollama-rs = "0.2.0"
 hyper = { version = "1.1.0", features = ["full"] }
 os_info = "3.7.0"
 atty = "0.2.14"
@@ -35,3 +36,27 @@ tempfile = "3.10.0"
 walkdir = "2.4.0"
 serde_yaml = "0.9.32"
 glob = "0.3.1"
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.22.0"
+# CI backends to support
+ci = "github"
+# The installers to generate for each app
+installers = ["shell", "powershell", "homebrew"]
+# A GitHub repo to push Homebrew formulas to
+tap = "grahambrooks/homebrew-genie"
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+# Path that installers should place binaries in
+install-path = "CARGO_HOME"
+# Publish jobs to run in CI
+publish-jobs = ["homebrew"]
+# Whether to install an updater program
+install-updater = false
