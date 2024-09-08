@@ -9,14 +9,13 @@ Genie is a Large Language Model (LLM) based command line application written in 
 Genie allows users to interact with the ChatGPT API, Ollama for AI operations. Genie can be built into larger scripted
 applications in the usual Unix way by piping input into the app and output into other apps.
 
-For more complex tasks Genie can run scripts written in yaml.
+For more complex tasks, Genie can run scripts written in YAML.
 
-If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way you will find quite a
+If you do a quick search of the internet or GitHub for projects that are using ChatGPT in some way, you will find quite a
 few.
-Many use interpreted languages and need your system to be setup to use the toolchain and dependencies.
+Many use interpreted languages and need your system to be set up to use the toolchain and dependencies.
 genie is written in rust.
-A key goal of the project is to make it super easy to install. Typically download a single binary and you're done. (
-except fo the small dependency on an OpenAI application key)
+A key goal of the project is to make it super easy to install. Typically, download a single binary and you're done. (except for the small dependency on an OpenAI application key)
 
 As a cli the application can accept input from other tools.
 
@@ -29,26 +28,23 @@ git log HEAD~2 | genie Summarize as a release note
 
 ### Project build and release status
 
-![ci](https://github.com/grahambrooks/genie/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/genie/actions/workflows/build.yaml/badge.svg) ![security audit](https://github.com/grahambrooks/genie/actions/workflows/security-audit.yaml/badge.svg)
+![ci](https://github.com/grahambrooks/genie/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/genie/actions/workflows/release.yaml/badge.svg) ![security audit](https://github.com/grahambrooks/genie/actions/workflows/security-audit.yaml/badge.svg)
 
 ## Installing
+
+Check out instructions under releases. 
+
+## Building
 
 ### Prerequisites
 
 - Rust stable https://www.rust-lang.org/tools/install or via rustup https://rustup.rs
 
-You will also need a ChatGPT API key. You can get one from https://openai.com and then set it as an environment
-variable.
+You will also need a ChatGPT API key. You can get one from https://openai.com and then set it as an environment variable.
 
 ```bash
 export OPENAI_API_KEY=<your key>
 ```
-
-### Install from crates.io
-
-```bash
-cargo install genie
-````
 
 ## Building
 
@@ -70,6 +66,8 @@ cargo build --release
 
 add the binary `target/release/genie` to your path or copy to a directory that is already on your path.
 
+## Genie in action
+
 ### Summarize for a git commit
 
 The following summarizes changes and commits those changes.
@@ -78,7 +76,7 @@ The following summarizes changes and commits those changes.
 git diff | genie Summarize changes as a git commit message. | git commit -a -F -
 ```
 
-OR
+OR using a local mistral model through Ollama
 
 ```bash
 git diff | genie --model ollama::mistral  Summarize changes as a git commit message. | git commit -a -F -
@@ -88,24 +86,6 @@ Which is a little long-winded, so you can create an alias in your shell.
 
 ```bash
 alias gcommit="git diff | genie --model ollama::mistral Summarize changes as a git commit message. | git commit -a -F -"
-```
-
-## Repository maintenance
-
-Currently, repository maintenance is manual and run semi regularly.
-
-### Updating the rust toolchain
-
-```bash
-rustup update
-```
-
-### Updating dependencies
-
-The following command will update the Cargo.lock file with the latest versions of dependencies.
-
-```bash
-cargo update
 ```
 
 ## Architecture
