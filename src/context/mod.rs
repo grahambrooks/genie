@@ -15,15 +15,19 @@ pub fn os_type_and_version() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    
+    // By default rust runs tests in parallel, so we need to run them sequentially because we are setting and removing environment variables
     #[test]
+    fn test_shell_detection() {
+        test_shell_bash();
+        test_shell_cmd();
+    }
     fn test_shell_bash() {
         std::env::set_var("SHELL", "/bin/bash");
         assert_eq!(shell(), "bash");
         std::env::remove_var("SHELL");
     }
 
-    #[test]
     fn test_shell_cmd() {
         std::env::set_var("SHELL", "cmd.exe");
         assert_eq!(shell(), "cmd.exe");

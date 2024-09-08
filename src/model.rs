@@ -1,6 +1,8 @@
 use std::error::Error;
 use std::fmt;
-
+use adapters::github::GitHubChat;
+use adapters::ollama::OllamaChat;
+use adapters::openai::OpenAIGPTChat;
 use crate::adapters;
 use crate::adapters::Adapter;
 use crate::errors::GenieError;
@@ -48,8 +50,9 @@ impl Model {
 
     pub(crate) fn adapter(&self) -> Result<Box<dyn Adapter>, Box<dyn Error>> {
         match self.protocol.as_str() {
-            "ollama" => Ok(Box::new(adapters::ollama::OllamaChat::new(self.model_name.clone()))),
-            "openai" => Ok(Box::new(adapters::openai::OpenAIGPTChat::new(self.model_name.clone()))),
+            "ollama" => Ok(Box::new(OllamaChat::new(self.model_name.clone()))),
+            "openai" => Ok(Box::new(OpenAIGPTChat::new(self.model_name.clone()))),
+            "github" => Ok(Box::new(GitHubChat::new(self.model_name.clone()))),
             _ => Err(Box::new(GenieError::new(&format!("Error parsing model: {}", self.protocol))))
         }
     }
