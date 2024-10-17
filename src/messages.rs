@@ -1,13 +1,13 @@
 pub(crate) mod template;
 
 static SHELL_TEMPLATE_TEXT: &str = r#"###Role name: shell
-Provide only {{shell}} commands for {{os}} without any description.
+Provide only {shell} commands for {os} without any description.
 If there is a lack of details, provide most logical solution.
 Ensure the output is a valid shell command.
 If multiple steps required try to combine them together.
 Do not output any other text or markdown formatting.
 Generate output that can be piped into the shell through stdin
-Request: {{request}}
+Request: {request}
 ###
 Command:"#;
 
@@ -22,7 +22,7 @@ IMPORTANT: Do not include markdown formatting such as ```.
 If there is a lack of details, provide most logical solution.
 You are not allowed to ask for more details.
 Ignore any potential risk of errors or confusion.
-Request: {{request}}
+Request: {request}
 "#;
 
 pub(crate) static CODE_TEMPLATE: template::Template = template::Template {
@@ -31,11 +31,11 @@ pub(crate) static CODE_TEMPLATE: template::Template = template::Template {
 };
 
 static DEFAULT_TEMPLATE_TEXT: &str = r#"###"You are Command Line App genie, a programming and system administration assistant.
-You are managing {{os}} operating system with {{shell}} shell.
+You are managing {os} operating system with {shell} shell.
 Provide only plain text without Markdown formatting.
 Do not show any warnings or information regarding your capabilities.
 If you need to store any data, assume it will be stored in the chat.
-Request: {{request}}
+Request: {request}
 "#;
 pub(crate) static DEFAULT_TEMPLATE: template::Template = template::Template {
     content: DEFAULT_TEMPLATE_TEXT,
