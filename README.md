@@ -146,6 +146,16 @@ C4Context
 
 ```
 
+## Making a release
+
+The release process is automated using GitHub actions. The release process is triggered by creating a release in GitHub.
+
+```bash
+sh make-release.sh -b <bump-type>
+```
+
+Where `<bump-type>` is one of `major`, `minor`, `patch`.
+
 ## Inspiration
 
 This project was inspired by the follow and the desire to learn Rust.
