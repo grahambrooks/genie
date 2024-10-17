@@ -28,7 +28,7 @@ git log HEAD~2 | genie Summarize as a release note
 
 ### Project build and release status
 
-![ci](https://github.com/grahambrooks/genie/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/genie/actions/workflows/release.yaml/badge.svg) ![security audit](https://github.com/grahambrooks/genie/actions/workflows/security-audit.yaml/badge.svg)
+![ci](https://github.com/grahambrooks/genie/actions/workflows/ci.yaml/badge.svg) ![release](https://github.com/grahambrooks/genie/actions/workflows/release.yml/badge.svg)
 
 ## Installing
 
