@@ -54,9 +54,9 @@ impl<'a> Template<'a> {
             )));
         }
 
-        tera.add_raw_template("template", self.content).unwrap();
+        tera.add_raw_template("template", self.content.replace("{", "{{").replace("}", "}}").as_str()).unwrap();
         match tera.render("template", &context) {
-            Ok(value) => Ok(value),
+            Ok(value) => Ok(value.replace("{{", "{").replace("}}", "}")),
             Err(_) => Err(TemplateError::new("Error rendering template")),
         }
     }
@@ -69,7 +69,7 @@ mod tests {
     #[test]
     fn test_template() {
         let template: Template = Template {
-            content: "Hello {{ name }}",
+            content: "Hello {name}",
             required_fields: &["name"],
         };
         let variables = vec![("name", "John")];
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn test_template_missing_field() {
         let template: Template = Template {
-            content: "Hello {{ name }}",
+            content: "Hello {name}",
             required_fields: &["name"],
         };
         let variables = vec![("age", "42")];
