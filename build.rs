@@ -1,5 +1,5 @@
 use std::process::Command;
-use std::env;
+use dotenv::var;
 
 fn main() {
     let git_sha = Command::new("git")
@@ -10,7 +10,7 @@ fn main() {
 
     let git_sha = String::from_utf8_lossy(&git_sha).trim().to_string();
 
-    let out_dir = env::var("OUT_DIR").unwrap();
+    let out_dir = var("OUT_DIR").unwrap();
     let version_file = format!("{}/version.txt", out_dir);
 
     std::fs::write(&version_file, git_sha).expect("Failed to write version file");

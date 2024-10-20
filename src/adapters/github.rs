@@ -1,10 +1,10 @@
 use crate::adapters::Adapter;
 use crate::errors::GenieError;
-use async_trait::async_trait;
 use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
-use std::env;
+use dotenv::var;
+use anyhow::Result;
 
 pub(crate) struct GitHubChat {
     model: String,
@@ -68,10 +68,9 @@ enum ApiResponse {
     Error { error: ErrorResponse },
 }
 
-#[async_trait]
 impl Adapter for GitHubChat {
-    async fn generate(&self, prompt: String) -> Result<String, Box<dyn std::error::Error>> {
-        let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set");
+    async fn generate(&self, prompt: String) -> Result<String> {
+        let github_token = var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set");
 
         let client = Client::new();
         let response = client
@@ -105,16 +104,16 @@ impl Adapter for GitHubChat {
                 Ok(chat_completion.choices.iter().map(|choice| choice.message.content.clone()).collect::<Vec<String>>().join("\n"))
             }
             ApiResponse::Error { error } => {
-                Err(Box::new(GenieError::new(&format!("Error: {} - {}", error.code, error.message))))
+                Err(anyhow::anyhow!("Error: {} - {}", error.code, error.message))
             }
         }
     }
 
-    async fn list_models(&self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn list_models(&self) -> Result<()> {
         todo!()
     }
 
-    async fn generate_images(&self, _prompt: String, _image_path: String) -> Result<(), Box<dyn std::error::Error>> {
+    async fn generate_images(&self, _prompt: String, _image_path: String) -> Result<()> {
         todo!()
     }
 }
