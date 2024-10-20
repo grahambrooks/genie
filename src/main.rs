@@ -1,15 +1,12 @@
 extern crate termion;
 
-
 use std::io;
-// use std::env::VarError;
 use std::io::Read;
-
 use clap::Parser;
-
 use run::RunCommand;
-
 use crate::model::Model;
+use dotenv::var;
+use anyhow::Result;
 
 pub const GPT_3_5_TURBO: &str = "gpt-3.5-turbo";
 pub const GPT_4_0: &str = "gpt-4-1106-preview";
@@ -60,10 +57,6 @@ struct Args {
     prompt: Vec<String>,
 }
 
-// fn key() -> Result<String, VarError> {
-//     env::var("OPENAI_API_KEY")
-// }
-
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
@@ -85,32 +78,32 @@ async fn main() {
     }
 }
 
-fn parse_command_from_args(args: Args) -> Result<Box<dyn actions::Action>, Box<dyn std::error::Error>> {
+fn parse_command_from_args(args: Args) -> Result<Box<dyn actions::Action>> {
     if args.run.is_some() {
         return Ok(Box::new(RunCommand::new(args.run.unwrap())));
     }
 
     if args.command {
-        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
+        let adapter = Model::from_string(args.model.as_str())?.adapter()?;
         return Ok(Box::new(actions::shell::ShellCommand::new(adapter)));
     }
 
     if args.code {
-        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
+        let adapter = Model::from_string(args.model.as_str())?.adapter()?;
         return Ok(Box::new(actions::code::GenerateCodeCommand::new(adapter)));
     }
 
     if args.image.is_some() {
-        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
+        let adapter = Model::from_string(args.model.as_str())?.adapter()?;
         return Ok(Box::new(actions::images::GenerateImagesCommand::new(adapter, args.image.unwrap())));
     }
 
     if args.list_models {
-        let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
+        let adapter = Model::from_string(args.model.as_str())?.adapter()?;
         return Ok(Box::new(actions::list_models::ListModelsCommand::new(adapter)));
     }
 
-    let adapter = Model::from_string(args.model.as_str()).unwrap().adapter()?;
+    let adapter = Model::from_string(args.model.as_str())?.adapter()?;
     Ok(Box::new(actions::chat::ChatCommand::new(adapter)))
 }
 

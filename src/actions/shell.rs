@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::io;
 use std::io::Write;
 use std::process::Command;
@@ -8,13 +7,11 @@ use termion::input::TermRead;
 
 use crate::actions::Action;
 use crate::adapters::Adapter;
-use crate::errors::GenieError;
 use crate::expand_template;
 use crate::messages::SHELL_TEMPLATE;
-use crate::model::ShellExecutor;
+use anyhow::{Result, Error};
 
 pub(crate) struct ShellCommand {
-    // adapter: &'a dyn ChatTrait,
     adapter: Box<dyn Adapter>,
 }
 
@@ -25,9 +22,9 @@ impl ShellCommand {
 }
 
 impl Action for ShellCommand {
-    fn exec(&self, user_prompt: String) -> Result<(), Box<dyn Error>> {
+    fn exec(&self, user_prompt: String) -> Result<()> {
         if user_prompt.is_empty() {
-            return Err(Box::new(GenieError::new("No prompt provided")));
+            return Err(anyhow::anyhow!("No prompt provided"));
         }
         let messages = expand_template(user_prompt, &SHELL_TEMPLATE);
         let future = async {
@@ -42,20 +39,11 @@ impl Action for ShellCommand {
                     }
                     Ok(())
                 }
-                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
+                Err(e) => Err(anyhow::anyhow!("Error executing shell action: {}", e)),
             }
         };
-        let result = futures::executor::block_on(future);
-
-        Ok(result?)
-    }
-}
-
-struct BashExecutor {}
-
-impl ShellExecutor for BashExecutor {
-    fn execute(&self) -> Result<(), Box<dyn Error>> {
-        todo!()
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(future)
     }
 }
 

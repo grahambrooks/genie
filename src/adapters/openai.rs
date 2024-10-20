@@ -1,12 +1,9 @@
-use std::error::Error;
-
 use async_openai::Client;
 use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, CreateImageRequestArgs, ImageSize, ResponseFormat};
-use async_trait::async_trait;
 use log::info;
+use anyhow::Result;
 
 use crate::adapters::Adapter;
-use crate::errors::GenieError;
 
 const IMAGE_COUNT: u8 = 2;
 const IMAGE_SIZE: ImageSize = ImageSize::S1024x1024;
@@ -30,9 +27,8 @@ impl std::fmt::Display for OpenAIGPTChat {
     }
 }
 
-#[async_trait]
 impl Adapter for OpenAIGPTChat {
-    async fn generate(&self, message: String) -> Result<String, Box<dyn Error>> {
+    async fn generate(&self, message: String) -> Result<String> {
         let connection = Client::new();
 
         let request = CreateChatCompletionRequestArgs::default()
@@ -58,11 +54,11 @@ impl Adapter for OpenAIGPTChat {
 
                 Ok(result_text)
             }
-            Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e)))),
+            Err(e) => Err(anyhow::anyhow!("Error generating images: {}", e)),
         }
     }
 
-    async fn list_models(&self) -> Result<(), Box<dyn Error>> {
+    async fn list_models(&self) -> Result<()> {
         let client = Client::new();
 
         let model_list = client.models().list().await?;
@@ -78,9 +74,9 @@ impl Adapter for OpenAIGPTChat {
         Ok(())
     }
 
-    async fn generate_images(&self, prompt: String, image_path: String) -> Result<(), Box<dyn Error>> {
+    async fn generate_images(&self, prompt: String, image_path: String) -> Result<()> {
         if prompt.is_empty() {
-            return Err(Box::new(GenieError::new("Prompt cannot be empty")));
+            return Err(anyhow::anyhow!("Prompt cannot be empty")));
         }
         let connection = Client::new();
 

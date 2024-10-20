@@ -1,6 +1,6 @@
 use crate::actions::Action;
 use crate::adapters::Adapter;
-use crate::errors::GenieError;
+use anyhow::Result;
 
 pub(crate) struct GenerateImagesCommand {
     adapter: Box<dyn Adapter>,
@@ -17,13 +17,14 @@ impl GenerateImagesCommand {
 }
 
 impl Action for GenerateImagesCommand {
-    fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+    fn exec(&self, user_prompt: String) -> Result<()> {
         if user_prompt.is_empty() {
-            return Err(Box::new(GenieError::new("No prompt provided")));
+            return Err(anyhow::anyhow!("No prompt provided"));
         }
 
         let image_path  = self.image_path.clone();
-        futures::executor::block_on(async {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
             self.adapter.generate_images(user_prompt, image_path).await
         })
     }
