@@ -1,14 +1,11 @@
-use std::error::Error;
-
-use async_trait::async_trait;
+use anyhow::Result;
 
 pub(crate) mod ollama;
 pub(crate) mod openai;
 pub(crate) mod github;
 
-#[async_trait]
 pub(crate) trait Adapter {
-    async fn generate(&self, prompt: String) -> Result<String, Box<dyn Error>>;
-    async fn list_models(&self) -> Result<(), Box<dyn Error>>;
-    async fn generate_images(&self, prompt: String, image_path: String) -> Result<(), Box<dyn Error>>;
+    async fn generate(&self, prompt: String) -> Result<String>;
+    async fn list_models(&self) -> Result<()>;
+    async fn generate_images(&self, prompt: String, image_path: String) -> Result<()>;
 }

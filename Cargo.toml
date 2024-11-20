@@ -30,12 +30,13 @@ termion = "3.0.0"
 mime_guess = { version = "2.0.4", features = [] }
 async-openai = "0.20.0"
 log = "0.4.20"
-async-trait = "0.1.77"
 mime = "0.3.17"
 tempfile = "3.10.0"
 walkdir = "2.4.0"
 serde_yaml = "0.9.32"
 glob = "0.3.1"
+anyhow = "1.0.56"
+dotenv = "0.15.0"
 
 # The profile that 'cargo dist' will build with
 [profile.dist]

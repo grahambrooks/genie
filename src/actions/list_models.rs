@@ -1,6 +1,6 @@
 use crate::actions::Action;
 use crate::adapters::Adapter;
-use crate::errors::GenieError;
+use anyhow::Result;
 
 pub(crate) struct ListModelsCommand {
     adapter: Box<dyn Adapter>,
@@ -15,14 +15,14 @@ impl ListModelsCommand {
 }
 
 impl Action for ListModelsCommand {
-    fn exec(&self, _user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
+    fn exec(&self, _user_prompt: String) -> Result<()> {
         println!("models");
-        let result = futures::executor::block_on(async {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
             match self.adapter.list_models().await {
                 Ok(_) => Ok(()),
-                Err(e) => Err(Box::new(GenieError::new(&format!("Error generating response: {}", e))))
+                Err(e) => Err(anyhow::anyhow!("Error generating response: {}", e))
             }
-        });
-        Ok(result?)
+        })
     }
 }
