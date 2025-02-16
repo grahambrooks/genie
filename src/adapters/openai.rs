@@ -88,7 +88,6 @@ impl Adapter for OpenAIGPTChat {
         let request = CreateImageRequestArgs::default()
             .prompt(prompt)
             .n(IMAGE_COUNT)
-            .response_format(ResponseFormat::Url)
             .size(IMAGE_SIZE)
             .user("async-openai")
             .build()?;
