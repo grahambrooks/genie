@@ -44,7 +44,7 @@ impl<'a> Template<'a> {
         let mut context = tera::Context::new();
         for (key, value) in variables {
             missing_fields.retain(|value| *value != key);
-            context.insert(key, &value);
+            context.insert(key.to_string(), &value);
         }
 
         if !missing_fields.is_empty() {
