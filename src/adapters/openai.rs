@@ -1,7 +1,10 @@
 use std::error::Error;
 
 use async_openai::Client;
-use async_openai::types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, CreateImageRequestArgs, ImageSize, ResponseFormat};
+use async_openai::types::chat::{
+    ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
+};
+use async_openai::types::images::{CreateImageRequestArgs, ImageSize};
 use async_trait::async_trait;
 use log::info;
 
@@ -92,7 +95,7 @@ impl Adapter for OpenAIGPTChat {
             .user("async-openai")
             .build()?;
 
-        let response = connection.images().create(request).await?;
+        let response = connection.images().generate(request).await?;
 
         let paths = response.save(image_path).await?;
 
