@@ -21,7 +21,7 @@ impl FileSystemContext<'_> {
         result.push_str(root_path.components().last().unwrap().as_os_str().to_str().unwrap());
         // let root_depth = root_path.components().count();
 
-        for entry in WalkDir::new(root_path).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(root_path).sort_by_file_name().into_iter().filter_map(|e| e.ok()) {
             let depth = entry.depth();// - root_depth;
             let indent = "    ".repeat(depth);
             let path = entry.path();
@@ -63,16 +63,16 @@ mod tests {
     #[test]
     fn test_walk_dir_nested_dir() {
         let structure = "/root_directory/
-    requirements.txt
-    tests/
-        tests/test_helper.py
-        tests/test_main.py
     docs/
-        docs/README.md
         docs/CONTRIBUTING.md
+        docs/README.md
+    requirements.txt
     src/
         src/helper.py
         src/main.py
+    tests/
+        tests/test_helper.py
+        tests/test_main.py
 ";
         let temp_dir = TempDir::new().unwrap();
         let temp_dir_path = temp_dir.path();
