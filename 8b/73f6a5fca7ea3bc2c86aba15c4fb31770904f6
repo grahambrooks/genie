@@ -1,0 +1,19 @@
+.github/workflows/release.yml
+  s_9a7c2bafa507c8::t_a86f7b5f124913 161-167,170,177-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8b73f6a5fca7ea3bc2c86aba15c4fb31770904f6",
+  "prompts": {},
+  "sessions": {
+    "s_9a7c2bafa507c8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_9a7c2bafa507c8",
+        "model": "unknown"
+      },
+      "human_author": "Graham Brooks <graham@grahambrooks.com>"
+    }
+  }
+}
