@@ -148,13 +148,23 @@ C4Context
 
 ## Making a release
 
-The release process is automated using GitHub actions. The release process is triggered by creating a release in GitHub.
+Releases are cut by pushing a CalVer tag (`vYYYY.M.N`, e.g. `v2026.9.0`):
 
 ```bash
-sh make-release.sh -b <bump-type>
+git tag v2026.9.0 && git push origin v2026.9.0
 ```
 
-Where `<bump-type>` is one of `major`, `minor`, `patch`.
+The `release` workflow (`.github/workflows/release.yml`, release-kit v2, configured by `.release.env`)
+stamps the tag's version into `Cargo.toml`, builds `genie-<tag>-<target>.tar.gz` for macOS and Linux
+(x86_64 and aarch64), publishes them with `SHA256SUMS` on the GitHub release, and merges a PR that updates
+the in-repo Homebrew formula `Formula/genie.rb`. Install with:
+
+```bash
+brew tap grahambrooks/genie https://github.com/grahambrooks/genie
+brew install grahambrooks/genie/genie
+```
+
+or run it without installing via `bx grahambrooks/genie`.
 
 ## Inspiration
 
