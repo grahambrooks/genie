@@ -3,7 +3,7 @@ extern crate termion;
 
 use std::io;
 // use std::env::VarError;
-use std::io::Read;
+use std::io::{IsTerminal, Read};
 
 use clap::Parser;
 
@@ -127,7 +127,7 @@ fn expand_template(prompt: String, template: &messages::template::Template) -> S
 fn read_stdin() -> String {
     let mut stdin_content = "".to_string();
 
-    if !atty::is(atty::Stream::Stdin) {
+    if !io::stdin().is_terminal() {
         let mut input_buffer = "".to_string();
 
         match io::stdin().read_to_string(&mut input_buffer) {
