@@ -1,0 +1,63 @@
+.github/workflows/ci.yml
+  s_3af201839d09d6::t_99148f49d70791 6-8,14-19,21-34,38-50,52-65
+Cargo.toml
+  s_3af201839d09d6::t_43e7df468ba28c 5-6
+build.rs
+  s_3af201839d09d6::t_c5b70e62c937c5 2,19
+rust-toolchain.toml
+  s_3af201839d09d6::t_60bff656226635 1-4
+src/actions/chat.rs
+  s_3af201839d09d6::t_a95f6f7574d8b4 13,31-34,40
+src/actions/code.rs
+  s_3af201839d09d6::t_4d867dc4e0a4fd 31-34
+src/actions/images.rs
+  s_3af201839d09d6::t_c594af444804c2 14,25
+src/actions/list_models.rs
+  s_3af201839d09d6::t_2b1b0513b5e6d9 11,21-24,29
+src/actions/mod.rs
+  s_3af201839d09d6::t_7c3d4a28bfc65e 1,5
+src/actions/shell.rs
+  s_3af201839d09d6::t_65e3cf1d16f6b6 44-47,67-70
+src/adapters/github.rs
+  s_3af201839d09d6::t_f9d01874bee9e4 81-95,102-111,119-123,126
+src/adapters/mod.rs
+  s_3af201839d09d6::t_917bcdf87095dd 5,13-17
+src/adapters/ollama.rs
+  s_3af201839d09d6::t_1185794daba2a0 5,37-40,42-44,47-52,60-64
+src/adapters/openai.rs
+  s_3af201839d09d6::t_1f5b3163116402 63-66,77,80,85-89
+src/context/mod.rs
+  s_3af201839d09d6::t_d8ccab6c957f19 3,18,26-28,30-32,36-38,40-42
+src/errors.rs
+  s_3af201839d09d6::t_5ea1dfc2d080c8 11-13
+src/filesystem/mod.rs
+  s_3af201839d09d6::t_3aefb230876857 10,21-29,32-37,40-44,73
+src/main.rs
+  s_3af201839d09d6::t_cce014a903e33d 18,21-22,26-30,51-54,58-61,65-69,101-105,118,120-122,127-129
+src/messages/template.rs
+  s_3af201839d09d6::t_f7520a57ac6ff1 57-61
+src/model.rs
+  s_3af201839d09d6::t_38366718a81973 4-8,17-21,38-41,45-48,61-64
+src/run/mod.rs
+  s_3af201839d09d6::t_64d9131728e77c 9,11,29-31,40-43,47-57
+src/run/script.rs
+  s_3af201839d09d6::t_d6f64195ca58f7 108-110,123-125,157-160,167-170,178-181,202-205,212-215,223-226,288-291,295-298,306-309,316
+src/run/template.rs
+  s_3af201839d09d6::t_deccced6a579c1 39-44,56-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2f1b3d3271d8206c6cc85d0065397c87902f5391",
+  "prompts": {},
+  "sessions": {
+    "s_3af201839d09d6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ca62a504-f3e7-484c-9e2d-47cfc6cd0491",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Graham Brooks <graham@grahambrooks.com>"
+    }
+  }
+}
