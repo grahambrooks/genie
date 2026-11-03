@@ -2,7 +2,8 @@
 name = "genie"
 version = "2026.11.1"
 build = "build.rs"
-edition = "2021"
+edition = "2024"
+rust-version = "1.99.1"
 authors = ["Graham Brooks<graham@grahambrooks.com>"]
 description = "A command line shell for using LLMs tools in the command line"
 readme = "README.md"

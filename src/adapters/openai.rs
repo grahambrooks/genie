@@ -14,7 +14,6 @@ use crate::errors::GenieError;
 const IMAGE_COUNT: u8 = 2;
 const IMAGE_SIZE: ImageSize = ImageSize::S1024x1024;
 
-
 pub(crate) struct OpenAIGPTChat {
     model: String,
 }
@@ -61,7 +60,10 @@ impl Adapter for OpenAIGPTChat {
 
                 Ok(result_text)
             }
-            Err(e) => Err(Box::new(GenieError::new(&format!("Error generating images: {}", e)))),
+            Err(e) => Err(Box::new(GenieError::new(&format!(
+                "Error generating images: {}",
+                e
+            )))),
         }
     }
 
@@ -70,23 +72,25 @@ impl Adapter for OpenAIGPTChat {
 
         let model_list = client.models().list().await?;
 
-
         for model in model_list.data {
             if model.id == self.model {
-                println!("* {}", model.id, );
+                println!("* {}", model.id,);
                 continue;
             }
-            println!("  {}", model.id, );
+            println!("  {}", model.id,);
         }
         Ok(())
     }
 
-    async fn generate_images(&self, prompt: String, image_path: String) -> Result<(), Box<dyn Error>> {
+    async fn generate_images(
+        &self,
+        prompt: String,
+        image_path: String,
+    ) -> Result<(), Box<dyn Error>> {
         if prompt.is_empty() {
             return Err(Box::new(GenieError::new("Prompt cannot be empty")));
         }
         let connection = Client::new();
-
 
         let request = CreateImageRequestArgs::default()
             .prompt(prompt)

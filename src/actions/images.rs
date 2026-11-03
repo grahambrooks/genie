@@ -11,7 +11,7 @@ impl GenerateImagesCommand {
     pub fn new(adapter: Box<dyn Adapter>, image_path: String) -> Self {
         GenerateImagesCommand {
             adapter,
-            image_path
+            image_path,
         }
     }
 }
@@ -22,7 +22,7 @@ impl Action for GenerateImagesCommand {
             return Err(Box::new(GenieError::new("No prompt provided")));
         }
 
-        let image_path  = self.image_path.clone();
+        let image_path = self.image_path.clone();
         futures::executor::block_on(async {
             self.adapter.generate_images(user_prompt, image_path).await
         })

@@ -8,7 +8,9 @@ pub(crate) struct GenieError {
 
 impl GenieError {
     pub(crate) fn new(msg: &str) -> GenieError {
-        GenieError { details: msg.to_string() }
+        GenieError {
+            details: msg.to_string(),
+        }
     }
 }
 

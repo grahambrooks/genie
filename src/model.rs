@@ -1,25 +1,24 @@
-use std::error::Error;
-use std::fmt;
-use adapters::github::GitHubChat;
-use adapters::ollama::OllamaChat;
-use adapters::openai::OpenAIGPTChat;
 use crate::adapters;
 use crate::adapters::Adapter;
 use crate::errors::GenieError;
+use adapters::github::GitHubChat;
+use adapters::ollama::OllamaChat;
+use adapters::openai::OpenAIGPTChat;
+use std::error::Error;
+use std::fmt;
 
 pub(crate) struct Model {
     protocol: String,
     model_name: String,
 }
 
-pub(crate) trait ShellExecutor {
-    fn execute(&self) -> Result<(), Box<dyn Error>>;
-}
-
-
 impl fmt::Display for Model {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Protocol: {}, Model Name: {}", self.protocol, self.model_name)
+        write!(
+            f,
+            "Protocol: {}, Model Name: {}",
+            self.protocol, self.model_name
+        )
     }
 }
 
@@ -36,11 +35,17 @@ impl Model {
 
         let protocol = split_spec.next();
         if protocol.is_none() {
-            return Err(Box::new(GenieError::new(&format!("Error parsing model: {}", spec))));
+            return Err(Box::new(GenieError::new(&format!(
+                "Error parsing model: {}",
+                spec
+            ))));
         }
         let model_name = split_spec.next();
         if model_name.is_none() {
-            return Err(Box::new(GenieError::new(&format!("Error parsing model: {}", spec))));
+            return Err(Box::new(GenieError::new(&format!(
+                "Error parsing model: {}",
+                spec
+            ))));
         }
         Ok(Self {
             protocol: protocol.unwrap().to_string(),
@@ -53,7 +58,10 @@ impl Model {
             "ollama" => Ok(Box::new(OllamaChat::new(self.model_name.clone()))),
             "openai" => Ok(Box::new(OpenAIGPTChat::new(self.model_name.clone()))),
             "github" => Ok(Box::new(GitHubChat::new(self.model_name.clone()))),
-            _ => Err(Box::new(GenieError::new(&format!("Error parsing model: {}", self.protocol))))
+            _ => Err(Box::new(GenieError::new(&format!(
+                "Error parsing model: {}",
+                self.protocol
+            )))),
         }
     }
 }
@@ -74,7 +82,6 @@ mod tests {
         let model = Model::from_string("ollama:gpt-3");
         assert!(model.is_err());
     }
-
 
     #[test]
     fn test_model_adapter() {

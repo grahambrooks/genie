@@ -10,12 +10,9 @@ pub(crate) struct ChatCommand {
 
 impl ChatCommand {
     pub fn new(adapter: Box<dyn Adapter>) -> Self {
-        ChatCommand {
-            adapter
-        }
+        ChatCommand { adapter }
     }
 }
-
 
 impl Action for ChatCommand {
     fn exec(&self, user_prompt: String) -> Result<(), Box<dyn std::error::Error>> {
@@ -31,7 +28,10 @@ impl Action for ChatCommand {
                     println!("{}", response);
                     Ok(())
                 }
-                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
+                Err(e) => Err(Box::new(GenieError::new(&format!(
+                    "Error executing shell action: {}",
+                    e
+                )))),
             }
         };
 

@@ -54,7 +54,11 @@ impl<'a> Template<'a> {
             )));
         }
 
-        tera.add_raw_template("template", self.content.replace("{", "{{").replace("}", "}}").as_str()).unwrap();
+        tera.add_raw_template(
+            "template",
+            self.content.replace("{", "{{").replace("}", "}}").as_str(),
+        )
+        .unwrap();
         match tera.render("template", &context) {
             Ok(value) => Ok(value.replace("{{", "{").replace("}}", "}")),
             Err(_) => Err(TemplateError::new("Error rendering template")),

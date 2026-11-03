@@ -11,7 +11,6 @@ use crate::adapters::Adapter;
 use crate::errors::GenieError;
 use crate::expand_template;
 use crate::messages::SHELL_TEMPLATE;
-use crate::model::ShellExecutor;
 
 pub(crate) struct ShellCommand {
     // adapter: &'a dyn ChatTrait,
@@ -42,20 +41,15 @@ impl Action for ShellCommand {
                     }
                     Ok(())
                 }
-                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
+                Err(e) => Err(Box::new(GenieError::new(&format!(
+                    "Error executing shell action: {}",
+                    e
+                )))),
             }
         };
         let result = futures::executor::block_on(future);
 
         Ok(result?)
-    }
-}
-
-struct BashExecutor {}
-
-impl ShellExecutor for BashExecutor {
-    fn execute(&self) -> Result<(), Box<dyn Error>> {
-        todo!()
     }
 }
 
@@ -69,9 +63,11 @@ async fn exec(script: String) -> io::Result<()> {
         .stdin(std::process::Stdio::piped())
         .spawn()?;
 
-
     {
-        let stdin = child.stdin.as_mut().ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Failed to open stdin"))?;
+        let stdin = child
+            .stdin
+            .as_mut()
+            .ok_or_else(|| io::Error::other("Failed to open stdin"))?;
         stdin.write_all(s.as_bytes())?;
     }
 

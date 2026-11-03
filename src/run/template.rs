@@ -36,7 +36,12 @@ pub fn expand_template(template: String, filepath: String) -> String {
     }
 
     if result.contains("{project.context}") {
-        result = result.replace("{project.context}", FileSystemContext::new(Path::new(filepath.as_str())).context().as_str());
+        result = result.replace(
+            "{project.context}",
+            FileSystemContext::new(Path::new(filepath.as_str()))
+                .context()
+                .as_str(),
+        );
     }
 
     result
@@ -48,7 +53,9 @@ mod tests {
 
     #[test]
     fn test_expand_template() {
-        let template = "This is a {file.type} file with the name {file.name} and the content {file.content}".to_string();
+        let template =
+            "This is a {file.type} file with the name {file.name} and the content {file.content}"
+                .to_string();
         let filepath = "src/run/template.rs".to_string();
         let result = expand_template(template, filepath);
         assert!(result.contains("Rust"));

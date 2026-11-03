@@ -8,9 +8,7 @@ pub(crate) struct ListModelsCommand {
 
 impl ListModelsCommand {
     pub fn new(adapter: Box<dyn Adapter>) -> Self {
-        ListModelsCommand {
-            adapter
-        }
+        ListModelsCommand { adapter }
     }
 }
 
@@ -20,7 +18,10 @@ impl Action for ListModelsCommand {
         let result = futures::executor::block_on(async {
             match self.adapter.list_models().await {
                 Ok(_) => Ok(()),
-                Err(e) => Err(Box::new(GenieError::new(&format!("Error generating response: {}", e))))
+                Err(e) => Err(Box::new(GenieError::new(&format!(
+                    "Error generating response: {}",
+                    e
+                )))),
             }
         });
         Ok(result?)

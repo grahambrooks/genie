@@ -7,7 +7,7 @@ pub struct FileSystemContext<'a> {
 }
 
 impl FileSystemContext<'_> {
-    pub fn new(root: &Path) -> FileSystemContext {
+    pub fn new(root: &Path) -> FileSystemContext<'_> {
         FileSystemContext { root }
     }
 
@@ -18,14 +18,30 @@ impl FileSystemContext<'_> {
         let root_path = self.root;
         let mut result = String::new();
         result.push('/');
-        result.push_str(root_path.components().last().unwrap().as_os_str().to_str().unwrap());
+        result.push_str(
+            root_path
+                .components()
+                .next_back()
+                .unwrap()
+                .as_os_str()
+                .to_str()
+                .unwrap(),
+        );
         // let root_depth = root_path.components().count();
 
-        for entry in WalkDir::new(root_path).sort_by_file_name().into_iter().filter_map(|e| e.ok()) {
-            let depth = entry.depth();// - root_depth;
+        for entry in WalkDir::new(root_path)
+            .sort_by_file_name()
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            let depth = entry.depth(); // - root_depth;
             let indent = "    ".repeat(depth);
             let path = entry.path();
-            let display_name = path.strip_prefix(root_path).unwrap_or(path).to_str().unwrap();
+            let display_name = path
+                .strip_prefix(root_path)
+                .unwrap_or(path)
+                .to_str()
+                .unwrap();
 
             if entry.file_type().is_dir() {
                 result.push_str(&format!("{}{}/\n", indent, display_name));
@@ -37,7 +53,6 @@ impl FileSystemContext<'_> {
         result
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -55,8 +70,7 @@ mod tests {
 
     #[test]
     fn test_walk_dir_not_found() {
-        let paths = FileSystemContext::new(Path::new("not_found"))
-            .context();
+        let paths = FileSystemContext::new(Path::new("not_found")).context();
         assert_eq!(paths.len(), 0);
     }
 

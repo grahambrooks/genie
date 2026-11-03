@@ -28,7 +28,10 @@ impl Action for GenerateCodeCommand {
                     println!("{}", response);
                     Ok(())
                 }
-                Err(e) => Err(Box::new(GenieError::new(&format!("Error executing shell action: {}", e)))),
+                Err(e) => Err(Box::new(GenieError::new(&format!(
+                    "Error executing shell action: {}",
+                    e
+                )))),
             }
         };
 

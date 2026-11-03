@@ -18,7 +18,6 @@ impl GitHubChat {
     }
 }
 
-
 #[derive(Deserialize, Debug)]
 #[allow(dead_code)]
 struct Message {
@@ -79,34 +78,37 @@ impl Adapter for GitHubChat {
             .header("Content-Type", "application/json")
             .header("Authorization", format!("Bearer {}", github_token))
             .json(&json!({
-            "messages": [
-                {
-                    "role": "system",
-                    "content": ""
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            "model": self.model,
-            "temperature": 1,
-            "max_tokens": 4096,
-            "top_p": 1
-        }))
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": ""
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                "model": self.model,
+                "temperature": 1,
+                "max_tokens": 4096,
+                "top_p": 1
+            }))
             .send()
             .await?;
-
 
         let response_text = response.text().await?;
         let api_response: ApiResponse = serde_json::from_str(response_text.as_str())?;
         match api_response {
-            ApiResponse::Success(chat_completion) => {
-                Ok(chat_completion.choices.iter().map(|choice| choice.message.content.clone()).collect::<Vec<String>>().join("\n"))
-            }
-            ApiResponse::Error { error } => {
-                Err(Box::new(GenieError::new(&format!("Error: {} - {}", error.code, error.message))))
-            }
+            ApiResponse::Success(chat_completion) => Ok(chat_completion
+                .choices
+                .iter()
+                .map(|choice| choice.message.content.clone())
+                .collect::<Vec<String>>()
+                .join("\n")),
+            ApiResponse::Error { error } => Err(Box::new(GenieError::new(&format!(
+                "Error: {} - {}",
+                error.code, error.message
+            )))),
         }
     }
 
@@ -114,7 +116,11 @@ impl Adapter for GitHubChat {
         todo!()
     }
 
-    async fn generate_images(&self, _prompt: String, _image_path: String) -> Result<(), Box<dyn std::error::Error>> {
+    async fn generate_images(
+        &self,
+        _prompt: String,
+        _image_path: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         todo!()
     }
 }

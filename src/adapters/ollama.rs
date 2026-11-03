@@ -1,8 +1,8 @@
 use std::error::Error;
 
 use async_trait::async_trait;
-use ollama_rs::generation::completion::request::GenerationRequest;
 use ollama_rs::Ollama;
+use ollama_rs::generation::completion::request::GenerationRequest;
 
 use crate::adapters::Adapter;
 use crate::errors::GenieError;
@@ -34,12 +34,22 @@ impl Adapter for OllamaChat {
             return Err(Box::new(GenieError::new("Prompt cannot be empty")));
         }
         let messages = expand_template(prompt, &DEFAULT_TEMPLATE);
-        let connection = Ollama::new("http://localhost".to_string(), 11434);
+        let connection = Ollama::builder()
+            .host("http://localhost")
+            .port(11434)
+            .build();
         let model = self.model.to_string();
-        let res = connection.generate(GenerationRequest::new(model, messages)).await;
+        let res = connection
+            .generate(GenerationRequest::new(model, messages))
+            .await;
         match res {
             Ok(response) => Ok(response.response),
-            Err(e) => return Err(Box::new(GenieError::new(&format!("Error calling Ollama: {}", e)))),
+            Err(e) => {
+                return Err(Box::new(GenieError::new(&format!(
+                    "Error calling Ollama: {}",
+                    e
+                ))));
+            }
         }
     }
 
@@ -47,7 +57,11 @@ impl Adapter for OllamaChat {
         todo!()
     }
 
-    async fn generate_images(&self, _prompt: String, _image_path: String) -> Result<(), Box<dyn Error>> {
+    async fn generate_images(
+        &self,
+        _prompt: String,
+        _image_path: String,
+    ) -> Result<(), Box<dyn Error>> {
         todo!()
     }
 }

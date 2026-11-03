@@ -29,7 +29,6 @@ impl Source {
     }
 }
 
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub(crate) enum Sink {
@@ -65,7 +64,6 @@ impl SinkTarget for Sink {
         Ok(())
     }
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -107,7 +105,9 @@ fn parse_script(source: &mut dyn io::Read) -> Result<Script, Box<dyn Error>> {
         }
         Source::Project { path } => {
             if path.is_none() {
-                return Err("task.source.path is required and currently missing for project sources".into());
+                return Err(
+                    "task.source.path is required and currently missing for project sources".into(),
+                );
             }
         }
     }
@@ -120,7 +120,9 @@ fn parse_script(source: &mut dyn io::Read) -> Result<Script, Box<dyn Error>> {
         }
         Sink::Project { file } => {
             if file.is_none() {
-                return Err("task.sink.file is required and currently missing for project sinks".into());
+                return Err(
+                    "task.sink.file is required and currently missing for project sinks".into(),
+                );
             }
         }
     }
@@ -152,14 +154,20 @@ mod tests {
         let mut file = io::Cursor::new(script);
 
         let result = parse_script(&mut file).unwrap();
-        assert_eq!(result.task.template.unwrap(), "This is a {file.type} file with the name {file.name} and the content {file.content}");
+        assert_eq!(
+            result.task.template.unwrap(),
+            "This is a {file.type} file with the name {file.name} and the content {file.content}"
+        );
         assert_eq!(result.task.model, "simple");
         match result.task.source {
             Source::Filesystem { path } => {
                 assert_eq!(path.unwrap(), "src/run/template.rs");
             }
             Source::Project { path } => {
-                panic!("Expected Source::Filesystem, got Source::Project with path {:?}", path);
+                panic!(
+                    "Expected Source::Filesystem, got Source::Project with path {:?}",
+                    path
+                );
             }
         }
         match result.task.sink {
@@ -167,7 +175,10 @@ mod tests {
                 assert_eq!(path.unwrap(), "output.txt");
             }
             Sink::Project { file } => {
-                panic!("Expected Sink::Filesystem, got Sink::Project with file {:?}", file);
+                panic!(
+                    "Expected Sink::Filesystem, got Sink::Project with file {:?}",
+                    file
+                );
             }
         }
     }
@@ -188,14 +199,20 @@ mod tests {
         let mut file = io::Cursor::new(script);
 
         let result = parse_script(&mut file).unwrap();
-        assert_eq!(result.task.template.unwrap(), "This is a {file.type} file with the name {file.name} and the content {file.content}");
+        assert_eq!(
+            result.task.template.unwrap(),
+            "This is a {file.type} file with the name {file.name} and the content {file.content}"
+        );
         assert_eq!(result.task.model, "ollama:mistral:latest");
         match result.task.source {
             Source::Filesystem { path } => {
                 assert_eq!(path.unwrap(), "src/run/template.rs");
             }
             Source::Project { path } => {
-                panic!("Expected Source::Filesystem, got Source::Project with path {:?}", path);
+                panic!(
+                    "Expected Source::Filesystem, got Source::Project with path {:?}",
+                    path
+                );
             }
         }
         match result.task.sink {
@@ -203,7 +220,10 @@ mod tests {
                 assert_eq!(path.unwrap(), "output.txt");
             }
             Sink::Project { file } => {
-                panic!("Expected Sink::Filesystem, got Sink::Project with file {:?}", file);
+                panic!(
+                    "Expected Sink::Filesystem, got Sink::Project with file {:?}",
+                    file
+                );
             }
         }
     }
@@ -265,11 +285,17 @@ mod tests {
         let mut file = io::Cursor::new(script);
 
         let result = parse_script(&mut file).unwrap();
-        assert_eq!(result.task.template.unwrap(), "analyze project structure\n{project.path}\n```\n{project.context}\n```\n");
+        assert_eq!(
+            result.task.template.unwrap(),
+            "analyze project structure\n{project.path}\n```\n{project.context}\n```\n"
+        );
         assert_eq!(result.task.model, "ollama::mistral:latest");
         match result.task.source {
             Source::Filesystem { path } => {
-                panic!("Expected Source::Project, got Source::Filesystem with path {:?}", path);
+                panic!(
+                    "Expected Source::Project, got Source::Filesystem with path {:?}",
+                    path
+                );
             }
             Source::Project { path } => {
                 assert_eq!(path.unwrap(), "src");
@@ -277,7 +303,10 @@ mod tests {
         }
         match result.task.sink {
             Sink::Filesystem { path } => {
-                panic!("Expected Sink::Project, got Sink::Filesystem with path {:?}", path);
+                panic!(
+                    "Expected Sink::Project, got Sink::Filesystem with path {:?}",
+                    path
+                );
             }
             Sink::Project { file } => {
                 assert_eq!(file.unwrap(), "{project.path}/recommendations.md");
