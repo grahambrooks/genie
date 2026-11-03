@@ -32,7 +32,7 @@ git log HEAD~2 | genie Summarize as a release note
 
 ## Installing
 
-Check out instructions under releases. 
+Check out instructions under releases.
 
 ## Building
 
@@ -148,11 +148,14 @@ C4Context
 
 ## Making a release
 
-Releases are cut by pushing a CalVer tag (`vYYYY.M.N`, e.g. `v2026.9.0`):
+Releases are cut by pushing a CalVer tag (`vYYYY.M.D`, today's UTC date, e.g. `v2026.9.14`):
 
 ```bash
-git tag v2026.9.0 && git push origin v2026.9.0
+make release-dry   # show the tag and commit
+make release       # tag origin/main and push the tag
 ```
+
+`make check` runs the same fmt/clippy/test gate as CI; `make hooks` installs prek hooks that run it before each push.
 
 The `release` workflow (`.github/workflows/release.yml`, release-kit v2, configured by `.release.env`)
 stamps the tag's version into `Cargo.toml`, builds `genie-<tag>-<target>.tar.gz` for macOS and Linux

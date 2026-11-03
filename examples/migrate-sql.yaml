@@ -1,7 +1,7 @@
 task:
   template: |
     As a senior software engineer please convert to a Postgres sql dialect
-    
+
     {file.name}
     ```{file.type}
     {file.content}

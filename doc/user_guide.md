@@ -42,7 +42,7 @@ fn fibonacci(n: u32) -> Vec<u32> {
 }
 ```
 
-## Image generation 
+## Image generation
 
 TBD
 
@@ -65,4 +65,3 @@ Which is a little long-winded, so you can create an alias in your shell.
 ```bash
 alias gcommit="git diff | genie --model ollama::mistral Summarize changes as a git commit message. | git commit -a -F -"
 ```
-

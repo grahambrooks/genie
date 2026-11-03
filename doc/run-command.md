@@ -94,4 +94,3 @@ Supported filesystem path variables
 | {file.path}      | The path of the file      |
 | {file.name}      | The name of the file      |
 | {file.extension} | The extension of the file |
-
